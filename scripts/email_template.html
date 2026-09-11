@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New User Sign-Up Alert - TipStack</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #0D0F14;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #F0F2F8;
+    }
+    .wrapper {
+      width: 100%;
+      background-color: #0D0F14;
+      padding: 40px 0;
+    }
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+      background-color: #161920;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid #272C3A;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+    }
+    .header-gradient {
+      background: linear-gradient(135deg, #00C9A7 0%, #007BFF 50%, #FFD166 100%);
+      padding: 36px 30px;
+      text-align: center;
+    }
+    .brand-title {
+      font-size: 32px;
+      font-weight: 900;
+      color: #0D0F14;
+      margin: 0;
+      letter-spacing: -0.5px;
+    }
+    .brand-tagline {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(13, 15, 20, 0.85);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .content {
+      padding: 32px 30px;
+    }
+    .alert-pill {
+      display: inline-block;
+      background-color: rgba(0, 201, 167, 0.15);
+      border: 1px solid #00C9A7;
+      color: #00C9A7;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 50px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+    .headline {
+      font-size: 22px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin: 0 0 10px 0;
+    }
+    .subtext {
+      font-size: 14px;
+      color: #8B91A7;
+      line-height: 1.6;
+      margin: 0 0 24px 0;
+    }
+    .card {
+      background-color: #1E2230;
+      border: 1px solid #272C3A;
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 26px;
+    }
+    .card-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .card-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .card-row:first-child {
+      padding-top: 0;
+    }
+    .card-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #8B91A7;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .card-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: #F0F2F8;
+      text-align: right;
+    }
+    .card-value.highlight {
+      color: #FFD166;
+    }
+    .card-value.primary {
+      color: #00C9A7;
+    }
+    .cta-button {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #00C9A7 0%, #007BFF 100%);
+      color: #FFFFFF;
+      text-align: center;
+      padding: 15px 24px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 16px rgba(0, 201, 167, 0.35);
+      margin-bottom: 24px;
+    }
+    .footer {
+      border-top: 1px solid #272C3A;
+      padding: 20px 30px;
+      text-align: center;
+      background-color: #11141A;
+    }
+    .footer-text {
+      font-size: 11px;
+      color: #545B73;
+      margin: 0 0 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="container">
+      <!-- Header Gradient Banner -->
+      <div class="header-gradient">
+        <h1 class="brand-title">TipStack</h1>
+        <div class="brand-tagline">Earn it. Track it. Stack it.</div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+        <div class="alert-pill">🎉 New User Registered</div>
+        <h2 class="headline">A new hustler just joined TipStack!</h2>
+        <p class="subtext">
+          Congratulations! A new user has created an account and is ready to start tracking and stacking their tips.
+        </p>
+
+        <!-- User Details Card -->
+        <div class="card">
+          <div class="card-row">
+            <span class="card-label">User Name</span>
+            <span class="card-value highlight">{{USERNAME}}</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">Email Address</span>
+            <span class="card-value primary">{{EMAIL}}</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">Registered At</span>
+            <span class="card-value">{{CREATED_AT}}</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">Account Tier</span>
+            <span class="card-value highlight">Free Hustler</span>
+          </div>
+          <div class="card-row">
+            <span class="card-label">Platform</span>
+            <span class="card-value">{{PLATFORM}}</span>
+          </div>
+        </div>
+
+        <!-- Dashboard CTA Button -->
+        <a href="https://supabase.com/dashboard/project/eosbtwubpzoogpvajyyk/auth/users" class="cta-button" target="_blank">
+          View User in Supabase Dashboard →
+        </a>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <p class="footer-text">© 2026 Johnson Enterprise Tech, LLC. All rights reserved.</p>
+        <p class="footer-text" style="color: #3F4556;">Confidential automated system notification delivered to johnsonenterprisega@gmail.com</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
