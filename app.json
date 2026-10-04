@@ -19,7 +19,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.stackup.app",
+      "bundleIdentifier": "com.johnsonenterprise.stackup",
       "infoPlist": {
         "NSCameraUsageDescription": "Used for profile photo upload.",
         "NSPhotoLibraryUsageDescription": "Used for profile photo upload.",
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png"
       },
-      "package": "com.stackup.app",
+      "package": "com.johnsonenterprise.stackup",
       "permissions": [
         "com.google.android.gms.permission.AD_ID"
       ]
