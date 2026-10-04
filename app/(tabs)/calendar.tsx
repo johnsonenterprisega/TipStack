@@ -29,7 +29,9 @@ import { useShiftStore, useJobStore } from '../../src/store';
 import { tipCalculator } from '../../src/services/api';
 import ShiftModal from '../../src/components/ShiftModal';
 import ShiftFlexModal from '../../src/components/ShiftFlexModal';
+import AdBanner from '../../src/components/AdBanner';
 import { useAppTheme } from '../../src/store/themeStore';
+
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../../src/theme';
 import { Database } from '../../src/types/database';
 
@@ -379,8 +381,12 @@ export default function CalendarScreen() {
           </View>
         )}
 
+        {/* AdMob Banner for Free Users */}
+        <AdBanner />
+
         <View style={{ height: 80 }} />
       </ScrollView>
+
 
       {/* Shift Create / Edit / Delete Modal */}
       <ShiftModal

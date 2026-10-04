@@ -28,7 +28,9 @@ import ImportMigrateModal from '../../src/components/ImportMigrateModal';
 import SetupChecklistCard from '../../src/components/SetupChecklistCard';
 import FeatureTourModal from '../../src/components/FeatureTourModal';
 import JobModal from '../../src/components/JobModal';
+import AdBanner from '../../src/components/AdBanner';
 import { useAppTheme } from '../../src/store/themeStore';
+
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../../src/theme';
 import { Database } from '../../src/types/database';
 
@@ -573,8 +575,12 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
+        {/* AdMob Banner for Free Users */}
+        <AdBanner />
+
         <View style={{ height: 100 }} />
       </ScrollView>
+
 
       {/* FAB — Quick Log */}
       <TouchableOpacity

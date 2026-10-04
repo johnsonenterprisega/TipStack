@@ -50,6 +50,8 @@ class NativeAdService {
     }
   }
 
+  private activeInterstitialUnitId: string | null = null;
+
   getBannerAdUnitId(): string {
     if (__DEV__) {
       return TEST_BANNER_ID;
@@ -58,6 +60,9 @@ class NativeAdService {
   }
 
   getInterstitialAdUnitId(): string {
+    if (this.activeInterstitialUnitId) {
+      return this.activeInterstitialUnitId;
+    }
     if (__DEV__) {
       return TEST_INTERSTITIAL_ID;
     }
@@ -125,6 +130,13 @@ class NativeAdService {
         this.interstitialLoaded = false;
         this.isShowing = false;
         this.pendingShowOnLoad = false;
+
+        // If live ad unit failed (common during TestFlight before App Store approval), fall back to Test Interstitial!
+        if (this.activeInterstitialUnitId !== TEST_INTERSTITIAL_ID) {
+          console.log('[AdMob] Live ad unit not filled. Falling back to Google Test Interstitial unit...');
+          this.activeInterstitialUnitId = TEST_INTERSTITIAL_ID;
+          setTimeout(() => this.preloadInterstitial(), 1500);
+        }
       });
 
       this.unsubscribers.push(unsubLoaded, unsubClosed, unsubError);
@@ -133,6 +145,7 @@ class NativeAdService {
       console.warn('[AdMob] Failed to create interstitial ad', e);
     }
   }
+
 
   async recordTaskAndShowInterstitial(isPro: boolean, taskName: string = 'task'): Promise<void> {
     if (isPro) {
