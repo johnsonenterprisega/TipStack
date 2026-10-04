@@ -42,6 +42,7 @@ export default function CelebrationModal({
   // Animation values
   const scaleAnim = useRef(new Animated.Value(0.3)).current;
   const opacityAnim = useRef(new Animated.Value(0)).current;
+  const shakeAnim = useRef(new Animated.Value(0)).current;
 
   // Particle positions
   const particles = useRef(
@@ -145,9 +146,22 @@ export default function CelebrationModal({
           }),
         ]).start();
       });
+
+      // Synchronized celebratory card shake/buzz animation
+      Animated.sequence([
+        Animated.delay(160),
+        Animated.timing(shakeAnim, { toValue: -6, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: 6, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: -5, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: 5, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: -3, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: 3, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+        Animated.timing(shakeAnim, { toValue: 0, duration: 40, useNativeDriver: Platform.OS !== 'web' }),
+      ]).start();
     } else {
       scaleAnim.setValue(0.3);
       opacityAnim.setValue(0);
+      shakeAnim.setValue(0);
     }
 
     // Cleanup: cancel pending vibration timers and cancel ongoing vibration
@@ -202,7 +216,7 @@ export default function CelebrationModal({
             styles.cardContainer,
             {
               opacity: opacityAnim,
-              transform: [{ scale: scaleAnim }],
+              transform: [{ scale: scaleAnim }, { translateX: shakeAnim }],
             },
           ]}
         >
@@ -226,6 +240,14 @@ export default function CelebrationModal({
             </Text>
             <Text style={styles.title}>{data.title}</Text>
             <Text style={styles.subtitle}>{data.subtitle}</Text>
+
+            {Platform.OS === 'web' && (
+              <View style={styles.webNoticeBadge}>
+                <Text style={styles.webNoticeText}>
+                  📳 Physical vibration active on mobile devices (Expo Go / iOS / Android)
+                </Text>
+              </View>
+            )}
 
             <TouchableOpacity
               style={styles.claimButton}
@@ -315,5 +337,18 @@ const styles = StyleSheet.create({
     fontSize: FONT_SIZES.base,
     fontWeight: '800',
     color: '#FFFFFF',
+  },
+  webNoticeBadge: {
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.md,
+    marginBottom: SPACING.lg,
+  },
+  webNoticeText: {
+    fontSize: FONT_SIZES.xs,
+    color: '#0D0F14',
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
