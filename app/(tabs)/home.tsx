@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -67,6 +67,11 @@ export default function HomeScreen() {
   const [goalType, setGoalType] = useState<'weekly' | 'monthly'>('weekly');
   const [isSavingGoal, setIsSavingGoal] = useState(false);
 
+  // Milestone celebration tracking refs
+  const initialLoadDoneRef = useRef(false);
+  const prevLevelRef = useRef<number | null>(null);
+  const prevGoalHitRef = useRef<boolean | null>(null);
+
   const loadData = useCallback(async () => {
     if (!session?.user.id) return;
     setLoading(true);
@@ -115,10 +120,25 @@ export default function HomeScreen() {
       // Update gamification
       const { currentStreak: streak, longestStreak } = calcStreak(shiftsData);
       const total = shiftsData.reduce((sum: number, s: any) => sum + s.net_tips, 0);
-      const { current } = getLevelForEarnings(total);
+      const { current, next } = getLevelForEarnings(total);
       setStreak(streak, longestStreak);
       setTotalEarnings(total);
       setLevel(current.level);
+
+      // Trigger celebration & phone vibration if user leveled up
+      if (initialLoadDoneRef.current) {
+        if (prevLevelRef.current !== null && current.level > prevLevelRef.current) {
+          setCelebrationData({
+            type: 'level_up',
+            title: `⭐ Level Up: ${current.title}!`,
+            subtitle: `Congratulations! You unlocked Level ${current.level}. Keep stacking toward ${next?.title || 'The GOAT'}!`,
+            emoji: current.icon,
+          });
+        }
+      } else {
+        initialLoadDoneRef.current = true;
+      }
+      prevLevelRef.current = current.level;
     } catch (e) {
       console.error('Error loading data:', e);
     } finally {
@@ -216,6 +236,21 @@ export default function HomeScreen() {
   const currentGoalProgress = isMonthlyGoal ? monthTips : payPeriodTips;
   const goalPercentage = goalTarget > 0 ? Math.min(1, currentGoalProgress / goalTarget) : 0;
   const goalRemaining = Math.max(0, goalTarget - currentGoalProgress);
+
+  // Auto-celebrate with phone vibration when active goal is reached
+  useEffect(() => {
+    if (!activeGoal || goalTarget <= 0) return;
+    const isHit = goalPercentage >= 1;
+    if (prevGoalHitRef.current === false && isHit) {
+      setCelebrationData({
+        type: 'goal_hit',
+        title: 'Goal Crushed! 🎯',
+        subtitle: `Boom! You reached 100% of your ${isMonthlyGoal ? 'monthly' : 'pay period'} target (${tipCalculator.formatCurrency(goalTarget)})!`,
+        emoji: '🎯',
+      });
+    }
+    prevGoalHitRef.current = isHit;
+  }, [goalPercentage, activeGoal, isMonthlyGoal, goalTarget]);
 
   const handleSaveGoal = async () => {
     if (!session?.user?.id) return;
@@ -367,7 +402,20 @@ export default function HomeScreen() {
         </View>
 
         {/* Earnings Goal Card */}
-        <View style={styles.goalCard}>
+        <TouchableOpacity
+          style={styles.goalCard}
+          activeOpacity={goalPercentage >= 1 ? 0.85 : 1}
+          onPress={() => {
+            if (goalPercentage >= 1 && activeGoal) {
+              setCelebrationData({
+                type: 'goal_hit',
+                title: 'Goal Crushed! 🎯',
+                subtitle: `You exceeded your ${isMonthlyGoal ? 'monthly' : 'pay period'} target of ${tipCalculator.formatCurrency(goalTarget)} with ${tipCalculator.formatCurrency(currentGoalProgress)} stacked!`,
+                emoji: '🎯',
+              });
+            }
+          }}
+        >
           <View style={styles.goalHeader}>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <Text style={styles.goalEmoji}>🎯</Text>
@@ -402,14 +450,14 @@ export default function HomeScreen() {
               <View style={styles.goalFooter}>
                 <Text style={styles.goalFooterText}>
                   {goalPercentage >= 1
-                    ? `🎉 Goal Reached! (+${tipCalculator.formatCurrency(currentGoalProgress - goalTarget)})`
+                    ? `🎉 Goal Reached! (+${tipCalculator.formatCurrency(currentGoalProgress - goalTarget)}) • Tap to celebrate 🚀`
                     : `🔥 ${tipCalculator.formatCurrency(goalRemaining)} left to hit target`}
                 </Text>
                 <Text style={styles.goalPercentBadge}>{Math.round(goalPercentage * 100)}%</Text>
               </View>
             </View>
           )}
-        </View>
+        </TouchableOpacity>
 
         {/* Level Progress */}
         <TouchableOpacity

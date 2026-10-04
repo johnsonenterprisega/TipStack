@@ -95,7 +95,8 @@ export default function ExportTaxModal({
         document.body.removeChild(link);
       } else {
         // Native iOS / Android file share
-        const fileUri = `${FileSystem.documentDirectory}${filename}`;
+        const baseDir = (FileSystem as any).documentDirectory || '';
+        const fileUri = `${baseDir}${filename}`;
         await FileSystem.writeAsStringAsync(fileUri, csvString, {
           encoding: FileSystem.EncodingType.UTF8,
         });

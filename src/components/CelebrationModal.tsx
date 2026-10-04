@@ -9,6 +9,7 @@ import {
   Easing,
   useWindowDimensions,
   Platform,
+  Vibration,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -55,11 +56,55 @@ export default function CelebrationModal({
   ).current;
 
   useEffect(() => {
+    let timers: ReturnType<typeof setTimeout>[] = [];
+
     if (visible && data) {
+      // 1. Phone Vibration & Haptic Celebration Cadence
       if (Platform.OS !== 'web') {
         try {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          // Escalating celebratory vibration fanfare:
+          // Pattern: [pause, vibrate, pause, vibrate, pause, vibrate, pause, vibrate]
+          // On Android: translates to four rhythmic, intensifying celebration pulses
+          // On iOS: triggers the device's physical vibration motor
+          Vibration.vibrate([0, 120, 80, 160, 80, 240, 100, 320]);
         } catch {}
+
+        try {
+          // Orchestrated Taptic Engine cadence (Apple / supported Android devices)
+          // Synchronized with card spring-up and confetti particle cascade
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+
+          timers.push(
+            setTimeout(() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+            }, 180)
+          );
+
+          timers.push(
+            setTimeout(() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid).catch(() => {});
+            }, 360)
+          );
+
+          timers.push(
+            setTimeout(() => {
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+            }, 560)
+          );
+
+          timers.push(
+            setTimeout(() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+            }, 800)
+          );
+        } catch {}
+      } else {
+        // Mobile web browser vibration API fallback (Chrome / Android mobile browsers)
+        if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+          try {
+            navigator.vibrate([120, 80, 160, 80, 240, 100, 320]);
+          } catch {}
+        }
       }
 
       // Card scale-up animation
@@ -104,6 +149,20 @@ export default function CelebrationModal({
       scaleAnim.setValue(0.3);
       opacityAnim.setValue(0);
     }
+
+    // Cleanup: cancel pending vibration timers and cancel ongoing vibration
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+      if (Platform.OS !== 'web') {
+        try {
+          Vibration.cancel();
+        } catch {}
+      } else if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+        try {
+          navigator.vibrate(0);
+        } catch {}
+      }
+    };
   }, [visible, data]);
 
   if (!data) return null;
@@ -173,6 +232,7 @@ export default function CelebrationModal({
               onPress={() => {
                 if (Platform.OS !== 'web') {
                   try {
+                    Vibration.cancel();
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
                   } catch {}
                 }
