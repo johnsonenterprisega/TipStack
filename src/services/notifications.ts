@@ -14,9 +14,9 @@ Notifications.setNotificationHandler({
 });
 
 const STORAGE_KEYS = {
-  DAILY_ENABLED: '@tipstack_notif_daily_enabled',
-  DAILY_TIME: '@tipstack_notif_daily_time', // e.g. "22:00"
-  PAYDAY_ENABLED: '@tipstack_notif_payday_enabled',
+  DAILY_ENABLED: '@stackup_notif_daily_enabled',
+  DAILY_TIME: '@stackup_notif_daily_time', // e.g. "22:00"
+  PAYDAY_ENABLED: '@stackup_notif_payday_enabled',
 };
 
 export interface NotificationSettings {
@@ -99,7 +99,7 @@ export const notificationService = {
 
         await Notifications.scheduleNotificationAsync({
           content: {
-            title: '💰 TipStack Reminder',
+            title: '💰 StackUp Reminder',
             body: "Did you work today? Don't forget to log your tips & hours to keep your streak alive!",
             sound: true,
             data: { screen: 'home' },
@@ -120,7 +120,7 @@ export const notificationService = {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: '🎉 Happy Pay Day!',
-            body: 'Today is your weekly Pay Day! Check your stacked earnings and tax estimates in TipStack.',
+            body: 'Today is your weekly Pay Day! Check your stacked earnings and tax estimates in StackUp.',
             sound: true,
             data: { screen: 'analytics' },
           },
@@ -142,7 +142,7 @@ export const notificationService = {
     if (Platform.OS === 'web') {
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification(
-          type === 'shift' ? '💰 TipStack Reminder' : '🎉 Happy Pay Day!',
+          type === 'shift' ? '💰 StackUp Reminder' : '🎉 Happy Pay Day!',
           {
             body:
               type === 'shift'
@@ -153,8 +153,8 @@ export const notificationService = {
       } else {
         alert(
           type === 'shift'
-            ? "🔔 [TipStack Test] Don't forget to log tonight's shift tips!"
-            : '🎉 [TipStack Test] Happy Pay Day! Check your weekly earnings.'
+            ? "🔔 [StackUp Test] Don't forget to log tonight's shift tips!"
+            : '🎉 [StackUp Test] Happy Pay Day! Check your weekly earnings.'
         );
       }
       return;
@@ -163,7 +163,7 @@ export const notificationService = {
     try {
       await Notifications.scheduleNotificationAsync({
         content: {
-          title: type === 'shift' ? '💰 TipStack Reminder' : '🎉 Happy Pay Day!',
+          title: type === 'shift' ? '💰 StackUp Reminder' : '🎉 Happy Pay Day!',
           body:
             type === 'shift'
               ? "Did you work today? Don't forget to log your tips and keep your streak alive!"

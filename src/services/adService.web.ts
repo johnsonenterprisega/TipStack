@@ -1,5 +1,5 @@
 // Web implementation of adService with live interactive simulation
-const STORAGE_KEY_TASK_COUNT = '@tipstack_ad_task_counter_web';
+const STORAGE_KEY_TASK_COUNT = '@stackup_ad_task_counter_web';
 const AD_ACTION_THRESHOLD = 2; // Every 2 tasks on free tier
 
 class WebAdService {

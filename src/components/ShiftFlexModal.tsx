@@ -176,7 +176,7 @@ export default function ShiftFlexModal({ visible, shift, onClose }: ShiftFlexMod
                       resizeMode="contain"
                     />
                     <View>
-                      <Text style={styles.storyBrandName}>TipStack</Text>
+                      <Text style={styles.storyBrandName}>StackUp</Text>
                       <Text style={styles.storyTagline}>EARN IT. TRACK IT. STACK IT.</Text>
                     </View>
                   </View>
@@ -244,7 +244,7 @@ export default function ShiftFlexModal({ visible, shift, onClose }: ShiftFlexMod
 
                   {/* Bottom Download Stamp */}
                   <View style={styles.storyBottomFooter}>
-                    <Text style={styles.storyAppStoreText}>Track your shifts with @TipStackApp</Text>
+                    <Text style={styles.storyAppStoreText}>Track your shifts with @StackUpApp</Text>
                   </View>
                 </LinearGradient>
               </ViewShot>

@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppThemeId, APP_THEMES, AppThemeConfig } from '../theme/themes';
 import { COLORS } from '../theme';
 
-const STORAGE_KEY = '@tipstack_app_theme_id';
+const STORAGE_KEY = '@stackup_app_theme_id';
 
 interface ThemeState {
   themeId: AppThemeId;

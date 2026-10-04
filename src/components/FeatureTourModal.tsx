@@ -24,7 +24,7 @@ const TOUR_SLIDES = [
     icon: '⏱️',
     tag: 'CORE ENGINE',
     title: 'Live Shift Tracking & True $/hr',
-    subtitle: 'Never guess how much you actually made. TipStack does the real math in real-time.',
+    subtitle: 'Never guess how much you actually made. StackUp does the real math in real-time.',
     gradient: ['#00C9A7', '#009578'],
     highlights: [
       { label: 'Base Hourly Wage', desc: 'Adds your guaranteed base hourly pay automatically.' },
@@ -68,7 +68,7 @@ const TOUR_SLIDES = [
     gradient: ['#FF6B6B', '#EE5253'],
     highlights: [
       { label: '100% Free Data Migration', desc: 'Import past years of shifts from ServerLife, TipSee, or Excel.' },
-      { label: 'Refer a TipStacker', desc: 'Give a friend an invite code; when they join Pro, both get 1 month free!' },
+      { label: 'Refer a Stacker', desc: 'Give a friend an invite code; when they join Pro, both get 1 month free!' },
       { label: '256-Bit Bank Encryption', desc: 'Your financial records stay 100% encrypted and private to you.' },
     ],
     proTip: '💡 Pro Tip: Grab your invite code from the Gold Referral banner on the Profile tab.',

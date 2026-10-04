@@ -21,7 +21,7 @@ export default function AdBanner({ style }: AdBannerProps) {
       <View style={styles.webBadge}>
         <Text style={styles.webAdText}>SPONSORED</Text>
       </View>
-      <Text style={styles.webTitle}>Upgrade to TipStack PRO for 100% Ad-Free Experience ⭐</Text>
+      <Text style={styles.webTitle}>Upgrade to StackUp PRO for 100% Ad-Free Experience ⭐</Text>
     </View>
   );
 }

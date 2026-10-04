@@ -43,7 +43,7 @@ export default function SignUpScreen() {
     setIsLoading(true);
     let surveyData: Record<string, any> = {};
     try {
-      const saved = await AsyncStorage.getItem('@tipstack_onboarding_survey');
+      const saved = await AsyncStorage.getItem('@stackup_onboarding_survey');
       if (saved) surveyData = JSON.parse(saved);
     } catch {}
     if (referralCode.trim()) {
@@ -61,7 +61,7 @@ export default function SignUpScreen() {
       });
 
       Alert.alert(
-        '🎉 Welcome to TipStack!',
+        '🎉 Welcome to StackUp!',
         'Check your email to confirm your account, then sign in.',
         [{ text: 'Go to Sign In', onPress: () => router.replace('/(auth)/login') }],
       );
@@ -85,7 +85,7 @@ export default function SignUpScreen() {
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.location.href = data.url;
       } else {
-        await WebBrowser.openAuthSessionAsync(data.url, 'tipstack://auth/callback');
+        await WebBrowser.openAuthSessionAsync(data.url, 'stackup://auth/callback');
       }
     }
   };
@@ -100,7 +100,7 @@ export default function SignUpScreen() {
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.location.href = data.url;
       } else {
-        await WebBrowser.openAuthSessionAsync(data.url, 'tipstack://auth/callback');
+        await WebBrowser.openAuthSessionAsync(data.url, 'stackup://auth/callback');
       }
     }
   };
@@ -237,11 +237,11 @@ export default function SignUpScreen() {
 
             <Text style={styles.legal}>
               By signing up you agree to our{' '}
-              <Text style={styles.legalLink} onPress={() => Linking.openURL('https://tipstack.app/terms')}>
+              <Text style={styles.legalLink} onPress={() => Linking.openURL('https://stackup.app/terms')}>
                 Terms of Service
               </Text>{' '}
               and{' '}
-              <Text style={styles.legalLink} onPress={() => Linking.openURL('https://tipstack.app/privacy')}>
+              <Text style={styles.legalLink} onPress={() => Linking.openURL('https://stackup.app/privacy')}>
                 Privacy Policy
               </Text>
               . US users only.

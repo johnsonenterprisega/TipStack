@@ -80,7 +80,7 @@ export default function ForgotPasswordScreen() {
                 <Text style={styles.successEmail}>{email.trim()}</Text>
               </Text>
               <Text style={styles.successInstructions}>
-                Click the link in the email to set a new password, then return to TipStack to sign in.
+                Click the link in the email to set a new password, then return to StackUp to sign in.
               </Text>
 
               <TouchableOpacity

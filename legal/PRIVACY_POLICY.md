@@ -3,9 +3,9 @@
 **Last Updated: August 22, 2026**  
 **Effective Date: August 22, 2026**
 
-**Johnson Enterprise Tech, LLC** ("Company", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy describes how we collect, use, store, share, and protect your information when you use the **TipStack** mobile application and related web services (collectively, the "Application" or "Service").
+**Johnson Enterprise Tech, LLC** ("Company", "we", "us", or "our") is committed to protecting your privacy. This Privacy Policy describes how we collect, use, store, share, and protect your information when you use the **StackUp** mobile application and related web services (collectively, the "Application" or "Service").
 
-By accessing or using TipStack, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies, please do not use the Application.
+By accessing or using StackUp, you agree to the collection and use of information in accordance with this Privacy Policy. If you do not agree with our policies, please do not use the Application.
 
 ---
 
@@ -36,7 +36,7 @@ We collect information you provide directly to us, as well as certain informatio
 
 ### 2. How We Use Your Information
 
-We use your information strictly to provide, maintain, and enhance the TipStack service:
+We use your information strictly to provide, maintain, and enhance the StackUp service:
 - **Core Functionality:** Calculate your net earnings, hourly averages, gamification levels, streaks, and progress toward earnings goals.
 - **Cross-Device Synchronization:** Securely store and sync your shift logs across multiple mobile devices via encrypted database infrastructure.
 - **Report & Tax Export Generation:** Generate downloadable CSV spreadsheets and estimated tax set-aside calculations upon your request.
@@ -68,12 +68,12 @@ We only share information with trusted third-party service providers who assist 
 
 - **Access & Correction:** You can view and edit your profile information, workplaces, wage rates, pay period settings, and shift logs directly within the Application at any time.
 - **Data Export:** You may export your complete shift history in standard CSV format at any time using the in-app Export tool.
-- **Account & Data Deletion:** You have the right to request permanent deletion of your account and all associated shift records. You can delete your account within the app settings or by contacting `support@tipstack.app`. Upon confirmation, all your stored shift logs, goals, and profile data will be permanently wiped from our database servers.
+- **Account & Data Deletion:** You have the right to request permanent deletion of your account and all associated shift records. You can delete your account within the app settings or by contacting `support@stackup.app`. Upon confirmation, all your stored shift logs, goals, and profile data will be permanently wiped from our database servers.
 
 ---
 
 ### 6. Children's Privacy
-TipStack is strictly intended for individuals aged 18 and older who are legally employed in the workforce. We do not knowingly collect personal information from children under the age of 13. If we become aware that we have collected information from a child under 13, we will delete it immediately.
+StackUp is strictly intended for individuals aged 18 and older who are legally employed in the workforce. We do not knowingly collect personal information from children under the age of 13. If we become aware that we have collected information from a child under 13, we will delete it immediately.
 
 ---
 
@@ -86,7 +86,7 @@ If you are a resident of California or other US states with consumer privacy sta
 ---
 
 ### 8. Changes to this Privacy Policy
-We may update our Privacy Policy periodically to reflect enhancements to our service or changes in applicable legal standards. Any updates will be posted with an updated "Last Updated" date. Continued use of TipStack after changes are published constitutes your acceptance of the updated policy.
+We may update our Privacy Policy periodically to reflect enhancements to our service or changes in applicable legal standards. Any updates will be posted with an updated "Last Updated" date. Continued use of StackUp after changes are published constitutes your acceptance of the updated policy.
 
 ---
 
@@ -95,5 +95,5 @@ If you have questions, concerns, or requests regarding this Privacy Policy or ou
 
 **Johnson Enterprise Tech, LLC**  
 Attention: Privacy Team  
-Email: `privacy@tipstack.app` / `support@tipstack.app`  
-Website: `https://tipstack.app`
+Email: `privacy@stackup.app` / `support@stackup.app`  
+Website: `https://stackup.app`

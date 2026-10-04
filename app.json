@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TipStack",
-    "slug": "tipstack",
+    "name": "StackUp",
+    "slug": "stackup",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -19,7 +19,7 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tipstack.app",
+      "bundleIdentifier": "com.stackup.app",
       "infoPlist": {
         "NSCameraUsageDescription": "Used for profile photo upload.",
         "NSPhotoLibraryUsageDescription": "Used for profile photo upload.",
@@ -32,7 +32,7 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png"
       },
-      "package": "com.tipstack.app",
+      "package": "com.stackup.app",
       "permissions": [
         "com.google.android.gms.permission.AD_ID"
       ]
@@ -63,7 +63,7 @@
       ],
       "expo-tracking-transparency"
     ],
-    "scheme": "tipstack",
+    "scheme": "stackup",
     "extra": {
       "router": {},
       "eas": {

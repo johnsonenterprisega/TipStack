@@ -37,7 +37,7 @@ export default function SecurityModal({ visible, onClose }: SecurityModalProps) 
                   Security & Privacy
                 </Text>
                 <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-                  How TipStack protects your money & personal data
+                  How StackUp protects your money & personal data
                 </Text>
               </View>
             </View>
@@ -90,7 +90,7 @@ export default function SecurityModal({ visible, onClose }: SecurityModalProps) 
                   </Text>
                 </View>
                 <Text style={[styles.pillarBody, { color: colors.textSecondary }]}>
-                  Every byte sent between TipStack on your phone and our cloud infrastructure is
+                  Every byte sent between StackUp on your phone and our cloud infrastructure is
                   encrypted in-flight with 256-bit TLS 1.3 / SSL encryption, preventing any
                   eavesdropping on public Wi-Fi or cellular networks.
                 </Text>
@@ -105,7 +105,7 @@ export default function SecurityModal({ visible, onClose }: SecurityModalProps) 
                   </Text>
                 </View>
                 <Text style={[styles.pillarBody, { color: colors.textSecondary }]}>
-                  TipStack is a privacy-first logging tracker. We never ask for your bank login,
+                  StackUp is a privacy-first logging tracker. We never ask for your bank login,
                   routing numbers, Plaid account links, or Social Security Number. Your financial
                   accounts remain completely untouched and disconnected.
                 </Text>

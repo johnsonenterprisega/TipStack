@@ -9,7 +9,7 @@ export interface NewUserSignupPayload {
 
 export const emailNotificationService = {
   /**
-   * Generates the Rich HTML Branded Email body using the TipStack standard gradient template.
+   * Generates the Rich HTML Branded Email body using the StackUp standard gradient template.
    */
   generateBrandedHtml(payload: NewUserSignupPayload): string {
     const formattedDate = new Date().toLocaleString('en-US', {
@@ -49,12 +49,12 @@ export const emailNotificationService = {
   <div class="wrapper">
     <div class="container">
       <div class="header">
-        <h1 class="title">TipStack</h1>
+        <h1 class="title">StackUp</h1>
         <div class="tagline">Earn it. Track it. Stack it.</div>
       </div>
       <div class="content">
         <div class="badge">🎉 New User Alert</div>
-        <h2 class="headline">A new hustler just joined TipStack!</h2>
+        <h2 class="headline">A new hustler just joined StackUp!</h2>
         <p class="subtext">A new user has registered an account and is ready to start tracking their tips.</p>
         <div class="card">
           <div class="row"><span class="label">User Name:</span><span class="val" style="color: #FFD166;">${payload.username || 'Hustler'}</span></div>
@@ -82,7 +82,7 @@ export const emailNotificationService = {
   async notifyOwnerNewSignup(payload: NewUserSignupPayload): Promise<void> {
     try {
       const richHtml = this.generateBrandedHtml(payload);
-      const subject = `🎉 New TipStack Sign-Up: ${payload.username || 'New User'} (${payload.email})`;
+      const subject = `🎉 New StackUp Sign-Up: ${payload.username || 'New User'} (${payload.email})`;
 
       console.log(`[EmailNotification] Dispatching sign-up notification to ${OWNER_EMAIL} for ${payload.email}...`);
 
@@ -96,14 +96,14 @@ export const emailNotificationService = {
         body: JSON.stringify({
           _subject: subject,
           _template: 'box',
-          'App Name': 'TipStack by Johnson Enterprise Tech',
+          'App Name': 'StackUp by Johnson Enterprise Tech',
           'New User Name': payload.username || 'Hustler',
           'User Email': payload.email,
           'Registration Date': new Date().toISOString(),
           'Platform': Platform.OS,
           'Account Tier': 'Free Hustler',
           'Dashboard Link': 'https://supabase.com/dashboard/project/eosbtwubpzoogpvajyyk/auth/users',
-          message: `New TipStack User Registered!\nName: ${payload.username}\nEmail: ${payload.email}`,
+          message: `New StackUp User Registered!\nName: ${payload.username}\nEmail: ${payload.email}`,
           _html: richHtml,
         }),
       });

@@ -152,9 +152,9 @@ export default function HomeScreen() {
     const loadGuideFlags = async () => {
       try {
         const [tourDone, guideDismissed, hasLaunchedBefore] = await Promise.all([
-          AsyncStorage.getItem('@tipstack_tour_completed'),
-          AsyncStorage.getItem('@tipstack_guide_dismissed'),
-          AsyncStorage.getItem('@tipstack_has_launched_tour'),
+          AsyncStorage.getItem('@stackup_tour_completed'),
+          AsyncStorage.getItem('@stackup_guide_dismissed'),
+          AsyncStorage.getItem('@stackup_has_launched_tour'),
         ]);
         if (tourDone === 'true') setHasCompletedTour(true);
         if (guideDismissed === 'true') setIsGuideDismissed(true);
@@ -163,7 +163,7 @@ export default function HomeScreen() {
         if (!hasLaunchedBefore && tourDone !== 'true') {
           setTimeout(() => {
             setIsTourModalVisible(true);
-            AsyncStorage.setItem('@tipstack_has_launched_tour', 'true');
+            AsyncStorage.setItem('@stackup_has_launched_tour', 'true');
           }, 600);
         }
       } catch {}
@@ -174,14 +174,14 @@ export default function HomeScreen() {
   const handleFinishTour = async () => {
     setHasCompletedTour(true);
     try {
-      await AsyncStorage.setItem('@tipstack_tour_completed', 'true');
+      await AsyncStorage.setItem('@stackup_tour_completed', 'true');
     } catch {}
   };
 
   const handleDismissGuide = async () => {
     setIsGuideDismissed(true);
     try {
-      await AsyncStorage.setItem('@tipstack_guide_dismissed', 'true');
+      await AsyncStorage.setItem('@stackup_guide_dismissed', 'true');
     } catch {}
   };
 

@@ -81,7 +81,7 @@ export default function ExportTaxModal({
     setIsExporting(true);
     try {
       const csvString = exportService.generateCSV(filteredShifts, jobs);
-      const filename = `TipStack_Shifts_${period}_${format(new Date(), 'yyyyMMdd')}.csv`;
+      const filename = `StackUp_Shifts_${period}_${format(new Date(), 'yyyyMMdd')}.csv`;
 
       if (Platform.OS === 'web') {
         // Browser direct download
@@ -104,7 +104,7 @@ export default function ExportTaxModal({
         if (await Sharing.isAvailableAsync()) {
           await Sharing.shareAsync(fileUri, {
             mimeType: 'text/csv',
-            dialogTitle: 'Export TipStack Shift Logs',
+            dialogTitle: 'Export StackUp Shift Logs',
             UTI: 'public.comma-separated-values-text',
           });
           setTimeout(() => {
@@ -238,7 +238,7 @@ export default function ExportTaxModal({
 
             {!isPro && (
               <Text style={styles.proHint}>
-                TipStack Pro members get unlimited 1-click CSV exports with custom date ranges.
+                StackUp Pro members get unlimited 1-click CSV exports with custom date ranges.
               </Text>
             )}
 

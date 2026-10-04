@@ -58,7 +58,7 @@ export default function LoginScreen() {
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.location.href = data.url;
       } else {
-        await WebBrowser.openAuthSessionAsync(data.url, 'tipstack://auth/callback');
+        await WebBrowser.openAuthSessionAsync(data.url, 'stackup://auth/callback');
       }
     }
   };
@@ -73,7 +73,7 @@ export default function LoginScreen() {
       if (Platform.OS === 'web' && typeof window !== 'undefined') {
         window.location.href = data.url;
       } else {
-        await WebBrowser.openAuthSessionAsync(data.url, 'tipstack://auth/callback');
+        await WebBrowser.openAuthSessionAsync(data.url, 'stackup://auth/callback');
       }
     }
   };

@@ -42,7 +42,7 @@ export default function ThemeSelectorModal({ visible, onClose }: ThemeSelectorMo
             <View>
               <Text style={styles.title}>🎨 App Color Theme</Text>
               <Text style={styles.subtitle}>
-                Customize the aesthetic of TipStack to match your personal vibe.
+                Customize the aesthetic of StackUp to match your personal vibe.
               </Text>
             </View>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>

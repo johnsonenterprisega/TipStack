@@ -92,7 +92,7 @@ export default function SetupChecklistCard({
           <Text style={styles.subtitle}>
             {isAllComplete
               ? '🎉 All set! Your profile is fully calibrated.'
-              : 'Complete these quick steps to get the most out of TipStack:'}
+              : 'Complete these quick steps to get the most out of StackUp:'}
           </Text>
         </View>
 

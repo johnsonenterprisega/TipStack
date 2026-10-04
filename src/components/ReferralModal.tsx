@@ -76,7 +76,7 @@ export default function ReferralModal({ visible, onClose }: ReferralModalProps) 
             url,
           },
           {
-            dialogTitle: 'Share TipStack with Fellow Hustlers',
+            dialogTitle: 'Share StackUp with Fellow Hustlers',
           }
         );
       }
@@ -101,9 +101,9 @@ export default function ReferralModal({ visible, onClose }: ReferralModalProps) 
                 <Text style={{ fontSize: 44 }}>🎁</Text>
               </View>
               <View style={styles.programPill}>
-                <Text style={styles.programPillText}>TIPSTACKER REWARDS</Text>
+                <Text style={styles.programPillText}>STACKUPER REWARDS</Text>
               </View>
-              <Text style={styles.heroTitle}>Refer a Fellow TipStacker</Text>
+              <Text style={styles.heroTitle}>Refer a Fellow Stacker</Text>
               <Text style={styles.heroSub}>Get 1 Month of Pro Free for every friend who joins!</Text>
             </LinearGradient>
 
@@ -172,7 +172,7 @@ export default function ReferralModal({ visible, onClose }: ReferralModalProps) 
                 <View style={{ flex: 1 }}>
                   <Text style={styles.stepTitle}>You both stack rewards</Text>
                   <Text style={styles.stepDesc}>
-                    You get 30 days of TipStack Pro completely free. No limit — refer 12 friends, get a full year free!
+                    You get 30 days of StackUp Pro completely free. No limit — refer 12 friends, get a full year free!
                   </Text>
                 </View>
               </View>

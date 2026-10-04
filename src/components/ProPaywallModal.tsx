@@ -81,9 +81,9 @@ export default function ProPaywallModal({
       } else if (data) {
         setProfile(data);
         if (Platform.OS === 'web') {
-          window.alert('🎉 Welcome to TipStack PRO! All Pro features are now unlocked.');
+          window.alert('🎉 Welcome to StackUp PRO! All Pro features are now unlocked.');
         } else {
-          Alert.alert('🎉 Welcome to TipStack PRO!', 'All Pro features have been unlocked for your account.');
+          Alert.alert('🎉 Welcome to StackUp PRO!', 'All Pro features have been unlocked for your account.');
         }
         if (onSuccess) onSuccess();
         onClose();
@@ -120,7 +120,7 @@ export default function ProPaywallModal({
                 style={styles.heroLogo}
                 resizeMode="contain"
               />
-              <Text style={styles.heroTitle}>TipStack PRO ⭐</Text>
+              <Text style={styles.heroTitle}>StackUp PRO ⭐</Text>
               <Text style={styles.heroSubtitle}>
                 {highlightFeature ? `Unlock ${highlightFeature} & all Pro tools` : 'Earn it. Track it. Stack it.'}
               </Text>
@@ -175,7 +175,7 @@ export default function ProPaywallModal({
             >
               <Text style={{ fontSize: 24 }}>🎁</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.referralBannerTitle}>Refer a Fellow TipStacker</Text>
+                <Text style={styles.referralBannerTitle}>Refer a Fellow Stacker</Text>
                 <Text style={styles.referralBannerSub}>Get 1 Month of Pro completely FREE for each friend who subscribes!</Text>
               </View>
               <Text style={{ fontSize: 16, color: '#FFD166', fontWeight: '900' }}>→</Text>
@@ -230,11 +230,11 @@ export default function ProPaywallModal({
 
             {/* Legal */}
             <View style={styles.legalRow}>
-              <TouchableOpacity onPress={() => Linking.openURL('https://tipstack.app/terms')}>
+              <TouchableOpacity onPress={() => Linking.openURL('https://stackup.app/terms')}>
                 <Text style={styles.legalLink}>Terms of Service</Text>
               </TouchableOpacity>
               <Text style={styles.legalDot}>•</Text>
-              <TouchableOpacity onPress={() => Linking.openURL('https://tipstack.app/privacy')}>
+              <TouchableOpacity onPress={() => Linking.openURL('https://stackup.app/privacy')}>
                 <Text style={styles.legalLink}>Privacy Policy</Text>
               </TouchableOpacity>
             </View>

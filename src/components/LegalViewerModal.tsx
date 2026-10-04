@@ -31,20 +31,20 @@ export default function LegalViewerModal({ visible, type, onClose }: LegalViewer
               <Text style={styles.meta}>Last Updated: August 22, 2026</Text>
               
               <Text style={styles.paragraph}>
-                Welcome to TipStack, operated and owned by Johnson Enterprise Tech, LLC ("Company", "we", "us", or "our").
+                Welcome to StackUp, operated and owned by Johnson Enterprise Tech, LLC ("Company", "we", "us", or "our").
               </Text>
               <Text style={styles.paragraph}>
-                By downloading, accessing, or using TipStack, you agree to be bound by these Terms of Service.
+                By downloading, accessing, or using StackUp, you agree to be bound by these Terms of Service.
               </Text>
 
               <Text style={styles.h2}>1. US Users Only & Eligibility</Text>
               <Text style={styles.paragraph}>
-                You must be at least 18 years old. TipStack is designed, operated, and intended solely for individuals residing and working in the United States.
+                You must be at least 18 years old. StackUp is designed, operated, and intended solely for individuals residing and working in the United States.
               </Text>
 
               <Text style={styles.h2}>2. Nature of Service & Financial Disclaimer</Text>
               <Text style={styles.paragraph}>
-                TipStack is a self-reporting shift tracking and personal record-keeping productivity tool. We are NOT certified public accountants (CPAs), tax preparers, or financial advisors.
+                StackUp is a self-reporting shift tracking and personal record-keeping productivity tool. We are NOT certified public accountants (CPAs), tax preparers, or financial advisors.
               </Text>
               <Text style={styles.paragraph}>
                 All estimated tax set-aside calculations and legislative deductions (including 2025 "No Tax on Tips" estimation models) are for informational estimation purposes only. You are solely responsible for reporting all earnings and tips accurately to your employer and the IRS.
@@ -52,7 +52,7 @@ export default function LegalViewerModal({ visible, type, onClose }: LegalViewer
 
               <Text style={styles.h2}>3. Subscriptions & In-App Purchases</Text>
               <Text style={styles.paragraph}>
-                TipStack PRO is offered as an auto-renewing subscription ($4.99/month or $39.99/year). Subscriptions unlock unlimited workplaces, CSV tax exports, and ad-free usage.
+                StackUp PRO is offered as an auto-renewing subscription ($4.99/month or $39.99/year). Subscriptions unlock unlimited workplaces, CSV tax exports, and ad-free usage.
               </Text>
               <Text style={styles.paragraph}>
                 Subscriptions are processed directly by Apple App Store (iOS) or Google Play (Android). You may cancel anytime in your device's account settings.
@@ -60,7 +60,7 @@ export default function LegalViewerModal({ visible, type, onClose }: LegalViewer
 
               <Text style={styles.h2}>4. Intellectual Property</Text>
               <Text style={styles.paragraph}>
-                All software, designs, trademarks, and branding ("TipStack", "Earn it. Track it. Stack it.") are the exclusive property of Johnson Enterprise Tech, LLC.
+                All software, designs, trademarks, and branding ("StackUp", "Earn it. Track it. Stack it.") are the exclusive property of Johnson Enterprise Tech, LLC.
               </Text>
 
               <Text style={styles.h2}>5. Limitation of Liability</Text>
@@ -71,8 +71,8 @@ export default function LegalViewerModal({ visible, type, onClose }: LegalViewer
               <Text style={styles.h2}>6. Contact Information</Text>
               <Text style={styles.paragraph}>
                 Johnson Enterprise Tech, LLC{'\n'}
-                Email: support@tipstack.app{'\n'}
-                Website: https://tipstack.app
+                Email: support@stackup.app{'\n'}
+                Website: https://stackup.app
               </Text>
             </View>
           ) : (
@@ -108,15 +108,15 @@ export default function LegalViewerModal({ visible, type, onClose }: LegalViewer
 
               <Text style={styles.h2}>5. Your Rights & Account Deletion</Text>
               <Text style={styles.paragraph}>
-                You can export all your data via CSV or request permanent deletion of your account and records at any time directly in the app or by emailing privacy@tipstack.app.
+                You can export all your data via CSV or request permanent deletion of your account and records at any time directly in the app or by emailing privacy@stackup.app.
               </Text>
 
               <Text style={styles.h2}>6. Contact Information</Text>
               <Text style={styles.paragraph}>
                 Johnson Enterprise Tech, LLC{'\n'}
                 Attention: Privacy Officer{'\n'}
-                Email: privacy@tipstack.app{'\n'}
-                Website: https://tipstack.app
+                Email: privacy@stackup.app{'\n'}
+                Website: https://stackup.app
               </Text>
             </View>
           )}

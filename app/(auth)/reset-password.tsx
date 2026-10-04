@@ -91,7 +91,7 @@ export default function ResetPasswordScreen() {
             />
             <Text style={styles.title}>Set New Password</Text>
             <Text style={styles.subtitle}>
-              Enter your new secure password below to regain access to your TipStack account.
+              Enter your new secure password below to regain access to your StackUp account.
             </Text>
           </View>
 

@@ -14,7 +14,7 @@ import * as Haptics from 'expo-haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../src/theme';
 
-export const ONBOARDING_SURVEY_KEY = '@tipstack_onboarding_survey';
+export const ONBOARDING_SURVEY_KEY = '@stackup_onboarding_survey';
 
 const TOTAL_STEPS = 10;
 
@@ -112,7 +112,7 @@ export default function OnboardingScreen() {
                 style={styles.logoImg}
                 resizeMode="contain"
               />
-              <Text style={styles.brandTitle}>TipStack</Text>
+              <Text style={styles.brandTitle}>StackUp</Text>
               <Text style={styles.brandTagline}>EARN IT. TRACK IT. STACK IT.</Text>
             </View>
 
@@ -120,7 +120,7 @@ export default function OnboardingScreen() {
               <Text style={styles.welcomeHeadline}>Stop guessing what you took home.</Text>
               <Text style={styles.welcomeDesc}>
                 Tips are fast cash, but without tracking your true take-home after tip-outs, wages, and taxes,
-                it's easy to wonder where the money went. TipStack gives you institutional clarity on your hustle.
+                it's easy to wonder where the money went. StackUp gives you institutional clarity on your hustle.
               </Text>
 
               <View style={styles.welcomePillRow}>
@@ -321,10 +321,10 @@ export default function OnboardingScreen() {
           </View>
         )}
 
-        {/* ─── STEP 6: THE TIPSTACK REALITY CHECK ────────────────────────── */}
+        {/* ─── STEP 6: THE STACKUP REALITY CHECK ────────────────────────── */}
         {step === 6 && (
           <View style={[styles.stepWrapper, styles.insightWrapper]}>
-            <Text style={styles.insightTag}>THE TIPSTACK REALITY CHECK</Text>
+            <Text style={styles.insightTag}>THE STACKUP REALITY CHECK</Text>
             <Text style={styles.insightHeadline}>
               Gross tips are vanity. Net take-home is sanity.
             </Text>
@@ -333,7 +333,7 @@ export default function OnboardingScreen() {
               withheld for taxes. Suddenly an 8-hour shift was only $18/hr.
             </Text>
             <Text style={[styles.insightBody, { marginTop: SPACING.md }]}>
-              TipStack automates your true net hourly math on every shift so you always know which jobs
+              StackUp automates your true net hourly math on every shift so you always know which jobs
               are making you rich, and which shifts are wasting your time.
             </Text>
 
@@ -565,7 +565,7 @@ export default function OnboardingScreen() {
             <View style={styles.freeGuaranteeBanner}>
               <Text style={{ fontSize: 16 }}>🛡️</Text>
               <Text style={styles.freeGuaranteeText}>
-                TipStack is <Text style={{ color: COLORS.primary, fontWeight: '800' }}>100% Free to Use</Text>. No credit card required.
+                StackUp is <Text style={{ color: COLORS.primary, fontWeight: '800' }}>100% Free to Use</Text>. No credit card required.
               </Text>
             </View>
 
@@ -679,7 +679,7 @@ export default function OnboardingScreen() {
             {/* Referral Callout Banner */}
             <View style={styles.referralCallout}>
               <Text style={styles.referralCalloutText}>
-                🎁 Refer a fellow TipStacker & get 1 Month of Pro free!
+                🎁 Refer a fellow Stacker & get 1 Month of Pro free!
               </Text>
             </View>
 

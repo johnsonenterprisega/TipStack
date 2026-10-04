@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency';
 import mobileAds, { InterstitialAd, AdEventType, TestIds } from 'react-native-google-mobile-ads';
 
-const STORAGE_KEY_TASK_COUNT = '@tipstack_ad_task_counter';
+const STORAGE_KEY_TASK_COUNT = '@stackup_ad_task_counter';
 const AD_ACTION_THRESHOLD = 2; // Show full-screen ad every 2 completed tasks for free users
 
 // Live AdMob Credentials

@@ -536,7 +536,7 @@ export default function ProfileScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 2 }}>
-                <Text style={styles.referralCardTitle}>Refer a Fellow TipStacker</Text>
+                <Text style={styles.referralCardTitle}>Refer a Fellow Stacker</Text>
                 <View style={styles.referralFreePill}>
                   <Text style={styles.referralFreePillText}>1 MO FREE</Text>
                 </View>

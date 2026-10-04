@@ -387,7 +387,7 @@ export default function ImportMigrateModal({ visible, onClose, onSuccess }: Impo
                     <ActivityIndicator color="#0D0F14" />
                   ) : (
                     <Text style={styles.confirmBtnText}>
-                      Migrate {summary.totalShifts} Shifts to TipStack 🚀
+                      Migrate {summary.totalShifts} Shifts to StackUp 🚀
                     </Text>
                   )}
                 </TouchableOpacity>

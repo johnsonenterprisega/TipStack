@@ -36,7 +36,7 @@ export const authService = {
     const redirectUrl =
       Platform.OS === 'web' && typeof window !== 'undefined'
         ? window.location.origin + '/(tabs)/home'
-        : 'tipstack://auth/callback';
+        : 'stackup://auth/callback';
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -52,7 +52,7 @@ export const authService = {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
-        redirectTo: 'tipstack://auth/callback',
+        redirectTo: 'stackup://auth/callback',
       },
     });
     return { data, error };
@@ -60,7 +60,7 @@ export const authService = {
 
   async resetPasswordForEmail(email: string) {
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: Platform.OS === 'web' ? window.location.origin + '/(auth)/reset-password' : 'tipstack://auth/reset-password',
+      redirectTo: Platform.OS === 'web' ? window.location.origin + '/(auth)/reset-password' : 'stackup://auth/reset-password',
     });
     return { data, error };
   },

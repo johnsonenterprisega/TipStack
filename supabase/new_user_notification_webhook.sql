@@ -11,7 +11,7 @@ returns trigger language plpgsql security definer as $$
 declare
   user_email text := new.email;
   user_name  text := coalesce(new.raw_user_meta_data->>'username', new.raw_user_meta_data->>'full_name', 'Hustler');
-  subject_line text := '🎉 New TipStack Sign-Up: ' || user_name || ' (' || user_email || ')';
+  subject_line text := '🎉 New StackUp Sign-Up: ' || user_name || ' (' || user_email || ')';
 begin
   -- Perform non-blocking HTTP POST request to FormSubmit endpoint
   perform net.http_post(
@@ -20,7 +20,7 @@ begin
     body := jsonb_build_object(
       '_subject', subject_line,
       '_template', 'box',
-      'App Name', 'TipStack',
+      'App Name', 'StackUp',
       'New User Name', user_name,
       'User Email', user_email,
       'Registered At', now()::text,

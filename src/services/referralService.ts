@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 
-const REFERRAL_STATS_KEY = '@tipstack_referral_stats';
+const REFERRAL_STATS_KEY = '@stackup_referral_stats';
 
 export interface ReferralStats {
   referralCode: string;
@@ -76,8 +76,8 @@ export const referralService = {
   getShareMessage(code: string): { title: string; message: string; url: string } {
     const shareUrl = 'https://manually-moscow-locked-reverse.trycloudflare.com/onboarding';
     return {
-      title: 'Join me on TipStack 💰',
-      message: `Hey! I've been tracking my tips with TipStack — it calculates your true take-home hourly after tip-outs, tracks taxes, and helps you keep more cash.\n\nUse my invite code ${code} when you sign up! 🚀\n${shareUrl}`,
+      title: 'Join me on StackUp 💰',
+      message: `Hey! I've been tracking my tips with StackUp — it calculates your true take-home hourly after tip-outs, tracks taxes, and helps you keep more cash.\n\nUse my invite code ${code} when you sign up! 🚀\n${shareUrl}`,
       url: shareUrl,
     };
   },
