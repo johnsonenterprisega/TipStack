@@ -119,7 +119,23 @@ export default function AchievementsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        <Text style={styles.pageTitle}>🏆 Achievements</Text>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: SPACING.base }}>
+          <Text style={[styles.pageTitle, { marginBottom: 0 }]}>🏆 Achievements</Text>
+          <TouchableOpacity
+            style={styles.testBtn}
+            onPress={() => {
+              setCelebrationData({
+                type: 'level_up',
+                title: 'Celebration Test! 📳',
+                subtitle: 'Testing phone vibration fanfare and confetti cascade!',
+                emoji: '🎉',
+              });
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.testBtnText}>Test Vibrate 📳</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Level Card */}
         <TouchableOpacity onPress={handleLevelClick} activeOpacity={0.85}>
@@ -197,6 +213,19 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.background },
   scrollContent: { paddingHorizontal: SPACING.base, paddingTop: SPACING.md },
   pageTitle: { fontSize: FONT_SIZES.xl, fontWeight: '800', color: COLORS.textPrimary, marginBottom: SPACING.base },
+  testBtn: {
+    backgroundColor: 'rgba(0, 201, 167, 0.15)',
+    borderWidth: 1,
+    borderColor: COLORS.accent,
+    paddingHorizontal: SPACING.md,
+    paddingVertical: 6,
+    borderRadius: RADIUS.full,
+  },
+  testBtnText: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: COLORS.accent,
+  },
   levelCard: {
     borderRadius: RADIUS.xl,
     padding: SPACING.xl,

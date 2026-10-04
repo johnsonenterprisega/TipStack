@@ -8,6 +8,7 @@ import {
   Switch,
   Platform,
   Alert,
+  Vibration,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { notificationService, NotificationSettings } from '../services/notifications';
@@ -174,6 +175,24 @@ export default function NotificationSettingsModal({
                 activeOpacity={0.8}
               >
                 <Text style={styles.testButtonText}>Test Pay Day 🎉</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.testButton, { backgroundColor: 'rgba(0, 201, 167, 0.15)', borderColor: COLORS.accent, borderWidth: 1 }]}
+                onPress={() => {
+                  if (Platform.OS !== 'web') {
+                    try {
+                      Vibration.vibrate([0, 120, 80, 160, 80, 240, 100, 320]);
+                      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    } catch {}
+                  } else if (typeof navigator !== 'undefined' && typeof navigator.vibrate === 'function') {
+                    try {
+                      navigator.vibrate([120, 80, 160, 80, 240, 100, 320]);
+                    } catch {}
+                  }
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={[styles.testButtonText, { color: COLORS.accent }]}>Vibrate Fanfare 📳</Text>
               </TouchableOpacity>
             </View>
 
