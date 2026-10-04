@@ -66,7 +66,9 @@
     "scheme": "stackup",
     "extra": {
       "router": {},
-      "eas": {}
+      "eas": {
+        "projectId": "f92a9b8b-c933-4aac-9db1-4312a5e65b64"
+      }
     },
     "owner": "johnson-enterprise-llc"
   }
