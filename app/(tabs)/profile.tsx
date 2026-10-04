@@ -28,6 +28,7 @@ import ThemeSelectorModal from '../../src/components/ThemeSelectorModal';
 import SecurityModal from '../../src/components/SecurityModal';
 import ReferralModal from '../../src/components/ReferralModal';
 import ImportMigrateModal from '../../src/components/ImportMigrateModal';
+import FeatureTourModal from '../../src/components/FeatureTourModal';
 import { useThemeStore } from '../../src/store/themeStore';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../../src/theme';
 import { Database } from '../../src/types/database';
@@ -339,6 +340,9 @@ export default function ProfileScreen() {
   // Migrate Modal State
   const [isMigrateModalVisible, setIsMigrateModalVisible] = useState(false);
 
+  // Feature Tour Modal State
+  const [isTourModalVisible, setIsTourModalVisible] = useState(false);
+
   // Job Modal State
   const [isJobModalVisible, setIsJobModalVisible] = useState(false);
   const [editingJob, setEditingJob] = useState<Job | null>(null);
@@ -640,6 +644,12 @@ export default function ProfileScreen() {
             onPress={() => setIsMigrateModalVisible(true)}
           />
           <SettingRow
+            label="✨ Interactive App Tour"
+            value="Replay Feature Guide"
+            color={COLORS.primary}
+            onPress={() => setIsTourModalVisible(true)}
+          />
+          <SettingRow
             label="Manage Subscription"
             value={isPro ? 'Pro Active ⭐' : 'Upgrade to Pro ($2.99/mo)'}
             onPress={handleUpgrade}
@@ -915,6 +925,12 @@ export default function ProfileScreen() {
       <ImportMigrateModal
         visible={isMigrateModalVisible}
         onClose={() => setIsMigrateModalVisible(false)}
+      />
+
+      {/* Interactive Feature Tour Modal */}
+      <FeatureTourModal
+        visible={isTourModalVisible}
+        onClose={() => setIsTourModalVisible(false)}
       />
     </SafeAreaView>
   );

@@ -20,16 +20,21 @@ import { useAuthStore, useShiftStore, useJobStore, useGamificationStore } from '
 import { shiftService, jobService, profileService, goalService, tipCalculator } from '../../src/services/api';
 import { calcStreak, getLevelForEarnings } from '../../src/utils/gamification';
 import { getCurrentPayPeriod, getPayDayStatus, DAYS_OF_WEEK } from '../../src/utils/payPeriod';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import ShiftModal from '../../src/components/ShiftModal';
 import CelebrationModal, { CelebrationData } from '../../src/components/CelebrationModal';
 import ShiftFlexModal from '../../src/components/ShiftFlexModal';
 import ImportMigrateModal from '../../src/components/ImportMigrateModal';
+import SetupChecklistCard from '../../src/components/SetupChecklistCard';
+import FeatureTourModal from '../../src/components/FeatureTourModal';
+import JobModal from '../../src/components/JobModal';
 import { useAppTheme } from '../../src/store/themeStore';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../../src/theme';
 import { Database } from '../../src/types/database';
 
 type Goal = Database['public']['Tables']['goals']['Row'];
 type Shift = Database['public']['Tables']['shifts']['Row'];
+type Job = Database['public']['Tables']['jobs']['Row'];
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 
 export default function HomeScreen() {
@@ -46,6 +51,13 @@ export default function HomeScreen() {
   const [celebrationData, setCelebrationData] = useState<CelebrationData | null>(null);
   const [flexShift, setFlexShift] = useState<Shift | null>(null);
   const [isFlexModalVisible, setIsFlexModalVisible] = useState(false);
+
+  // FTUE Setup Guide & Feature Tour State
+  const [isTourModalVisible, setIsTourModalVisible] = useState(false);
+  const [isJobModalVisible, setIsJobModalVisible] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
+  const [hasCompletedTour, setHasCompletedTour] = useState(false);
+  const [isGuideDismissed, setIsGuideDismissed] = useState(false);
 
   // Earnings Goal State
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null);
@@ -115,6 +127,43 @@ export default function HomeScreen() {
   }, [session]);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    const loadGuideFlags = async () => {
+      try {
+        const [tourDone, guideDismissed, hasLaunchedBefore] = await Promise.all([
+          AsyncStorage.getItem('@tipstack_tour_completed'),
+          AsyncStorage.getItem('@tipstack_guide_dismissed'),
+          AsyncStorage.getItem('@tipstack_has_launched_tour'),
+        ]);
+        if (tourDone === 'true') setHasCompletedTour(true);
+        if (guideDismissed === 'true') setIsGuideDismissed(true);
+
+        // Auto-show tour on first launch if not completed
+        if (!hasLaunchedBefore && tourDone !== 'true') {
+          setTimeout(() => {
+            setIsTourModalVisible(true);
+            AsyncStorage.setItem('@tipstack_has_launched_tour', 'true');
+          }, 600);
+        }
+      } catch {}
+    };
+    loadGuideFlags();
+  }, []);
+
+  const handleFinishTour = async () => {
+    setHasCompletedTour(true);
+    try {
+      await AsyncStorage.setItem('@tipstack_tour_completed', 'true');
+    } catch {}
+  };
+
+  const handleDismissGuide = async () => {
+    setIsGuideDismissed(true);
+    try {
+      await AsyncStorage.setItem('@tipstack_guide_dismissed', 'true');
+    } catch {}
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -280,6 +329,30 @@ export default function HomeScreen() {
           </View>
           <Text style={styles.payPeriodDates}>{currentPayPeriod.label}</Text>
         </View>
+
+        {/* Fast-Start Setup Checklist Guide (for new users or until dismissed) */}
+        {!isGuideDismissed && (
+          <SetupChecklistCard
+            hasWorkplace={jobs.length > 0 && jobs.some((j) => j.name !== 'Primary Job' || j.hourly_wage > 0 || j.tip_out_percent > 0)}
+            hasShift={shifts.length > 0}
+            hasGoal={!!activeGoal}
+            hasCompletedTour={hasCompletedTour}
+            onOpenWorkplace={() => {
+              setEditingJob(jobs[0] || null);
+              setIsJobModalVisible(true);
+            }}
+            onOpenShift={() => {
+              setShiftToEdit(null);
+              setShowLogModal(true);
+            }}
+            onOpenGoal={() => {
+              if (activeGoal) setGoalTargetInput(activeGoal.target_amount.toString());
+              setIsGoalModalVisible(true);
+            }}
+            onOpenTour={() => setIsTourModalVisible(true)}
+            onDismiss={handleDismissGuide}
+          />
+        )}
 
         {/* Stats Row */}
         <View style={styles.statsRow}>
@@ -570,6 +643,24 @@ export default function HomeScreen() {
         visible={isMigrateModalVisible}
         onClose={() => setIsMigrateModalVisible(false)}
         onSuccess={loadData}
+      />
+
+      {/* Interactive Feature Tour Walkthrough */}
+      <FeatureTourModal
+        visible={isTourModalVisible}
+        onClose={() => setIsTourModalVisible(false)}
+        onFinish={handleFinishTour}
+      />
+
+      {/* Workplace & Base Wage Setup Modal */}
+      <JobModal
+        visible={isJobModalVisible}
+        job={editingJob}
+        onClose={() => {
+          setIsJobModalVisible(false);
+          setEditingJob(null);
+        }}
+        onSaved={loadData}
       />
     </SafeAreaView>
   );
