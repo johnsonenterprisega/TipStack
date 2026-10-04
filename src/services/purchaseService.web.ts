@@ -38,10 +38,11 @@ class WebPurchaseService {
         annual: {
           identifier: '$rc_annual',
           product: {
-            identifier: 'stackup_yearly_pro',
+            identifier: 'stackup_annual_pro',
             priceString: '$19.99',
             price: 19.99,
             title: 'Annual Pro Pass',
+
           },
         },
       },
