@@ -18,7 +18,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore, useShiftStore, useJobStore, useGamificationStore } from '../../src/store';
 import { authService, jobService, profileService, tipCalculator } from '../../src/services/api';
+import { purchaseService } from '../../src/services/purchaseService';
 import { getLevelForEarnings } from '../../src/utils/gamification';
+
 import { DAYS_OF_WEEK, getPayPeriodEndDay } from '../../src/utils/payPeriod';
 import ProPaywallModal from '../../src/components/ProPaywallModal';
 import ExportTaxModal from '../../src/components/ExportTaxModal';
@@ -455,6 +457,20 @@ export default function ProfileScreen() {
     setIsPaywallVisible(true);
   };
 
+  const handleRestorePurchases = async () => {
+    try {
+      const result = await purchaseService.restorePurchases();
+      if (result.isPro) {
+        Alert.alert('🎉 Restored!', 'Your StackUp Pro subscription has been verified and active.');
+      } else {
+        Alert.alert('No Subscription Found', 'No active Pro subscription was found for this Apple ID.');
+      }
+    } catch (e: any) {
+      Alert.alert('Restore Error', e.message || 'Could not restore purchases.');
+    }
+  };
+
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -654,7 +670,13 @@ export default function ProfileScreen() {
             value={isPro ? 'Pro Active ⭐' : 'Upgrade to Pro ($2.99/mo)'}
             onPress={handleUpgrade}
           />
+          <SettingRow
+            label="Restore In-App Purchases"
+            value="Sync Apple ID"
+            onPress={handleRestorePurchases}
+          />
         </View>
+
 
         {/* Security & Data Privacy Section */}
         <Text style={styles.sectionTitle}>Security & Privacy</Text>

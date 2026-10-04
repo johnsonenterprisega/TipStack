@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,10 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { useAuthStore } from '../store';
 import { profileService } from '../services/api';
+import { purchaseService } from '../services/purchaseService';
 import ReferralModal from './ReferralModal';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../theme';
+
 
 interface ProPaywallModalProps {
   visible: boolean;
@@ -63,15 +65,75 @@ export default function ProPaywallModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'annual'>('annual');
   const [isReferralOpen, setIsReferralOpen] = useState(false);
+  const [offerings, setOfferings] = useState<any>(null);
 
   const isAlreadyPro = profile?.subscription_tier === 'pro';
+
+  useEffect(() => {
+    if (visible) {
+      purchaseService
+        .getOfferings()
+        .then((off) => {
+          if (off) setOfferings(off);
+        })
+        .catch((e) => console.warn('[ProPaywallModal] Failed to load offerings:', e));
+    }
+  }, [visible]);
+
+  // Resolve packages from RevenueCat current offering
+  const annualPackage =
+    offerings?.current?.annual ||
+    offerings?.current?.availablePackages?.find(
+      (p: any) =>
+        p.packageType === 'ANNUAL' ||
+        p.identifier === '$rc_annual' ||
+        p.product?.identifier?.includes('yearly') ||
+        p.product?.identifier?.includes('annual')
+    );
+
+  const monthlyPackage =
+    offerings?.current?.monthly ||
+    offerings?.current?.availablePackages?.find(
+      (p: any) =>
+        p.packageType === 'MONTHLY' ||
+        p.identifier === '$rc_monthly' ||
+        p.product?.identifier?.includes('monthly')
+    );
+
+  const annualPriceString = annualPackage?.product?.priceString || '$19.99';
+  const monthlyPriceString = monthlyPackage?.product?.priceString || '$2.99';
 
   const handleSubscribe = async () => {
     if (!session?.user?.id) return;
     setIsProcessing(true);
 
     try {
-      // Activate Pro in Supabase database
+      const targetPackage = selectedPlan === 'annual' ? annualPackage : monthlyPackage;
+
+      // On native iOS/Android, trigger StoreKit / Apple Pay
+      if (Platform.OS !== 'web' && targetPackage) {
+        const result = await purchaseService.purchasePackage(targetPackage);
+        if (result.userCancelled) {
+          setIsProcessing(false);
+          return;
+        }
+
+        if (result.success && result.isPro) {
+          Alert.alert(
+            '🎉 Welcome to StackUp PRO!',
+            'All Pro features, tax calculators, and unlimited workplaces have been unlocked.'
+          );
+          if (onSuccess) onSuccess();
+          onClose();
+          return;
+        } else if (result.error) {
+          Alert.alert('Subscription Notice', result.error);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // Web simulation or direct update fallback
       const { data, error } = await profileService.updateProfile(session.user.id, {
         subscription_tier: 'pro',
       });
@@ -95,6 +157,30 @@ export default function ProPaywallModal({
     }
   };
 
+  const handleRestorePurchases = async () => {
+    setIsProcessing(true);
+    try {
+      const result = await purchaseService.restorePurchases();
+      if (result.isPro) {
+        Alert.alert(
+          '🎉 Purchases Restored!',
+          'Your active StackUp Pro subscription has been verified and restored.'
+        );
+        if (onSuccess) onSuccess();
+        onClose();
+      } else {
+        Alert.alert(
+          'No Active Subscription Found',
+          'We could not find an active StackUp Pro subscription associated with this Apple ID.'
+        );
+      }
+    } catch (e: any) {
+      Alert.alert('Restore Error', e.message || 'Could not restore purchases.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleDowngradeForTesting = async () => {
     if (!session?.user?.id) return;
     setIsProcessing(true);
@@ -107,6 +193,7 @@ export default function ProPaywallModal({
     setIsProcessing(false);
     onClose();
   };
+
 
   return (
     <Modal visible={visible} animationType="slide" transparent presentationStyle="pageSheet">
@@ -146,9 +233,9 @@ export default function ProPaywallModal({
                       <Text style={styles.trialPillText}>14 DAYS FREE</Text>
                     </View>
                   </View>
-                  <Text style={styles.planTrial}>$1.66/mo billed yearly ($19.99)</Text>
+                  <Text style={styles.planTrial}>$1.66/mo billed yearly ({annualPriceString})</Text>
                 </View>
-                <Text style={styles.planPrice}>$19.99<Text style={styles.planPeriod}>/yr</Text></Text>
+                <Text style={styles.planPrice}>{annualPriceString}<Text style={styles.planPeriod}>/yr</Text></Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -163,7 +250,7 @@ export default function ProPaywallModal({
                   <Text style={styles.planName}>Monthly Pro Pass</Text>
                   <Text style={styles.planTrial}>Flexible · Cancel anytime</Text>
                 </View>
-                <Text style={styles.planPrice}>$2.99<Text style={styles.planPeriod}>/mo</Text></Text>
+                <Text style={styles.planPrice}>{monthlyPriceString}<Text style={styles.planPeriod}>/mo</Text></Text>
               </TouchableOpacity>
             </View>
 
@@ -210,23 +297,34 @@ export default function ProPaywallModal({
                     ? 'You are on Pro ⭐'
                     : selectedPlan === 'annual'
                     ? 'Start 14-Day Free Trial 🚀'
-                    : 'Subscribe Monthly ($2.99/mo) 🚀'}
+                    : `Subscribe Monthly (${monthlyPriceString}/mo) 🚀`}
                 </Text>
               )}
             </TouchableOpacity>
 
             <Text style={styles.disclaimer}>
               {selectedPlan === 'annual'
-                ? '14-day free trial, then $19.99/yr. Cancel anytime in Settings before trial ends.'
-                : '$2.99/month, cancel anytime in Settings.'}
+                ? `14-day free trial, then ${annualPriceString}/yr. Cancel anytime in Settings before trial ends.`
+                : `${monthlyPriceString}/month, cancel anytime in Settings.`}
             </Text>
+
+            {/* Restore Purchases (Required by Apple Review) */}
+            <TouchableOpacity
+              onPress={handleRestorePurchases}
+              disabled={isProcessing}
+              style={styles.restoreBtn}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.restoreBtnText}>Restore Previous Purchases</Text>
+            </TouchableOpacity>
 
             {/* Dev toggle to revert to Free tier for testing */}
             {isAlreadyPro && (
-              <TouchableOpacity onPress={handleDowngradeForTesting} style={{ marginTop: 12, alignItems: 'center' }}>
+              <TouchableOpacity onPress={handleDowngradeForTesting} style={{ marginTop: 8, marginBottom: 8, alignItems: 'center' }}>
                 <Text style={{ color: COLORS.textMuted, fontSize: 12 }}>[Dev: Revert account to Free tier]</Text>
               </TouchableOpacity>
             )}
+
 
             {/* Legal */}
             <View style={styles.legalRow}>
@@ -432,4 +530,16 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: '500',
   },
+  restoreBtn: {
+    alignItems: 'center',
+    paddingVertical: SPACING.xs,
+    marginBottom: SPACING.xs,
+  },
+  restoreBtnText: {
+    fontSize: 12,
+    color: COLORS.accent,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
 });
+

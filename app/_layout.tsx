@@ -8,6 +8,7 @@ import { supabase } from '../src/lib/supabase';
 import { useAuthStore } from '../src/store';
 import AnimatedSplashScreen from '../src/components/AnimatedSplashScreen';
 import { adService } from '../src/services/adService';
+import { purchaseService } from '../src/services/purchaseService';
 import { useThemeStore } from '../src/store/themeStore';
 import { emailNotificationService } from '../src/services/emailNotification';
 import { COLORS } from '../src/theme';
@@ -24,11 +25,15 @@ export default function RootLayout() {
     // Initialize AdMob and Tracking Permissions
     adService.initialize();
 
+    // Initialize RevenueCat SDK
+    purchaseService.initialize();
+
     const initAuth = async () => {
       try {
         const { session } = await authService.getSession();
         setSession(session);
         if (session?.user?.id) {
+          purchaseService.initialize(session.user.id);
           let prof = await profileService.getProfile(session.user.id);
           const metaName = session.user.user_metadata?.username || session.user.user_metadata?.full_name || session.user.user_metadata?.name;
           if (!prof && metaName) {
@@ -47,10 +52,11 @@ export default function RootLayout() {
 
     initAuth();
 
-        // Listen for auth changes
+    // Listen for auth changes
     const { data: listener } = authService.onAuthStateChange(async (_event, session) => {
       setSession(session);
       if (session?.user?.id) {
+        purchaseService.logIn(session.user.id);
         let prof = await profileService.getProfile(session.user.id);
         const metaName = session.user.user_metadata?.username || session.user.user_metadata?.full_name || session.user.user_metadata?.name;
         if (!prof) {
@@ -67,12 +73,14 @@ export default function RootLayout() {
         }
         setProfile(prof);
       } else {
+        purchaseService.logOut();
         setProfile(null);
       }
     });
 
     return () => listener.subscription.unsubscribe();
   }, []);
+
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: COLORS.background }}>
