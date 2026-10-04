@@ -505,10 +505,10 @@ export default function AnalyticsScreen() {
             style={styles.proGradientCard}
           >
             <View style={styles.proHeader}>
-              <View>
-                <Text style={styles.proSuiteTitle}>⭐ Pro Intelligence Suite</Text>
-                <Text style={styles.proSuiteSubtitle}>
-                  Advanced tip leakage, 2026 tax relief & goal velocity
+              <View style={{ flex: 1, paddingRight: SPACING.sm }}>
+                <Text style={styles.proSuiteTitle} numberOfLines={1}>⭐ Pro Intelligence</Text>
+                <Text style={styles.proSuiteSubtitle} numberOfLines={2}>
+                  Tip leakage, 2026 tax relief & pace
                 </Text>
               </View>
               {isPro ? (
@@ -1028,6 +1028,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.base,
+    gap: SPACING.sm,
   },
   proSuiteTitle: {
     fontSize: FONT_SIZES.md,
@@ -1038,12 +1039,14 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: COLORS.textSecondary,
     marginTop: 2,
+    lineHeight: 15,
   },
   proActiveTag: {
     backgroundColor: COLORS.accent,
     paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingVertical: 4,
     borderRadius: RADIUS.full,
+    flexShrink: 0,
   },
   proActiveTagText: {
     fontSize: 9,
@@ -1052,9 +1055,10 @@ const styles = StyleSheet.create({
   },
   unlockProBtn: {
     backgroundColor: COLORS.accent,
-    paddingHorizontal: SPACING.md,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: RADIUS.full,
+    flexShrink: 0,
   },
   unlockProBtnText: {
     fontSize: FONT_SIZES.xs,
@@ -1172,13 +1176,16 @@ const styles = StyleSheet.create({
   },
   proCtaGradient: {
     paddingVertical: SPACING.md,
+    paddingHorizontal: SPACING.md,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   proCtaText: {
     fontSize: FONT_SIZES.xs,
     fontWeight: '900',
     color: '#0D0F14',
     letterSpacing: 0.3,
+    textAlign: 'center',
   },
   exportCard: {
     backgroundColor: COLORS.surface,
