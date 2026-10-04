@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import { useAppTheme } from '../../src/store/themeStore';
 import { FONT_SIZES } from '../../src/theme';
 
@@ -14,7 +14,14 @@ function TabIcon({ emoji, label, focused, activeColor }: TabIconProps) {
   return (
     <View style={styles.tabIcon}>
       <Text style={[styles.emoji, focused && styles.emojiActive]}>{emoji}</Text>
-      <Text style={[styles.label, focused && { color: activeColor, fontWeight: '800' }]}>
+      <Text
+        numberOfLines={1}
+        ellipsizeMode="clip"
+        style={[
+          styles.label,
+          focused && { color: activeColor, fontWeight: '800' },
+        ]}
+      >
         {label}
       </Text>
     </View>
@@ -84,25 +91,30 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    height: 72,
-    paddingBottom: 8,
+    height: Platform.OS === 'ios' ? 84 : 66,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 8,
     paddingTop: 8,
     borderTopWidth: 1,
   },
   tabIcon: {
     alignItems: 'center',
+    justifyContent: 'center',
+    width: 68,
     gap: 2,
   },
   emoji: {
-    fontSize: 22,
+    fontSize: 20,
     opacity: 0.5,
   },
   emojiActive: {
     opacity: 1,
+    transform: [{ scale: 1.08 }],
   },
   label: {
-    fontSize: FONT_SIZES.xs,
+    fontSize: 10.5,
     color: '#8B91A7',
-    fontWeight: '500',
+    fontWeight: '600',
+    textAlign: 'center',
+    width: '100%',
   },
 });

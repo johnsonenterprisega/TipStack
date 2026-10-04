@@ -148,7 +148,7 @@ export default function CalendarScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {/* Header with Search & Quick Jump */}
         <View style={styles.topHeader}>
-          <Text style={styles.screenTitle}>📅 Shift Calendar</Text>
+          <Text style={styles.screenTitle} numberOfLines={1}>📅 Calendar</Text>
           <View style={styles.headerActionGroup}>
             <TouchableOpacity
               style={styles.todayButton}
@@ -170,7 +170,7 @@ export default function CalendarScreen() {
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.searchButtonText}>🔍 Jump & Search</Text>
+              <Text style={styles.searchButtonText}>🔍 Jump</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -597,21 +597,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: SPACING.md,
+    gap: SPACING.sm,
   },
   screenTitle: {
-    fontSize: FONT_SIZES.xl,
+    fontSize: FONT_SIZES.lg,
     fontWeight: '900',
     color: COLORS.textPrimary,
+    flexShrink: 1,
   },
   headerActionGroup: {
     flexDirection: 'row',
-    gap: SPACING.xs,
+    gap: 6,
+    alignItems: 'center',
+    flexShrink: 0,
   },
   todayButton: {
     backgroundColor: COLORS.surface,
     borderColor: COLORS.border,
     borderWidth: 1,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: RADIUS.full,
   },
@@ -624,7 +628,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary + '22',
     borderColor: COLORS.primary,
     borderWidth: 1,
-    paddingHorizontal: SPACING.md,
+    paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: RADIUS.full,
   },
