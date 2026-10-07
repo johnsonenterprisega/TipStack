@@ -16,6 +16,8 @@ import { useAuthStore, useShiftStore, useJobStore } from '../store';
 import { shiftService, jobService, tipCalculator } from '../services/api';
 import { adService } from '../services/adService';
 import ShiftFlexModal from './ShiftFlexModal';
+import { TimePickerModal } from './TimePickerModal';
+import { calcShiftHours, from24HourTime, to24HourTime, ShiftHoursResult } from '../utils/timeCalculator';
 import { COLORS, FONT_SIZES, SPACING, RADIUS, SHADOWS } from '../theme';
 import { Database } from '../types/database';
 import { format } from 'date-fns';
@@ -45,7 +47,16 @@ export default function ShiftModal({
 
   const [cashTips, setCashTips] = useState('');
   const [creditTips, setCreditTips] = useState('');
-  const [hours, setHours] = useState('');
+  const [hours, setHours] = useState('5.75');
+  const [timeMode, setTimeMode] = useState<'clock' | 'manual'>('clock');
+  const [clockInTime, setClockInTime] = useState('4:30 PM');
+  const [clockOutTime, setClockOutTime] = useState('10:15 PM');
+  const [timePickerTarget, setTimePickerTarget] = useState<'clockIn' | 'clockOut' | null>(null);
+  const [calculatedDuration, setCalculatedDuration] = useState<ShiftHoursResult | null>({
+    hours: 5.75,
+    formatted: '5h 45m',
+    isOvernight: false,
+  });
   const [tipOut, setTipOut] = useState('');
   const [notes, setNotes] = useState('');
   const [selectedJobId, setSelectedJobId] = useState('');
@@ -62,15 +73,33 @@ export default function ShiftModal({
       if (shiftToEdit) {
         setCashTips(shiftToEdit.cash_tips ? shiftToEdit.cash_tips.toString() : '');
         setCreditTips(shiftToEdit.credit_tips ? shiftToEdit.credit_tips.toString() : '');
-        setHours(shiftToEdit.hours_worked ? shiftToEdit.hours_worked.toString() : '');
+        setHours(shiftToEdit.hours_worked ? shiftToEdit.hours_worked.toString() : '5.75');
         setTipOut(shiftToEdit.tip_out_amount ? shiftToEdit.tip_out_amount.toString() : '');
         setNotes(shiftToEdit.notes || '');
         setSelectedJobId(shiftToEdit.job_id);
         setShiftDate(shiftToEdit.date);
+
+        if (shiftToEdit.start_time && shiftToEdit.end_time) {
+          const in12 = from24HourTime(shiftToEdit.start_time);
+          const out12 = from24HourTime(shiftToEdit.end_time);
+          setClockInTime(in12);
+          setClockOutTime(out12);
+          setTimeMode('clock');
+          const calc = calcShiftHours(in12, out12);
+          setCalculatedDuration(calc);
+        } else if (shiftToEdit.hours_worked) {
+          setTimeMode('manual');
+        } else {
+          setTimeMode('clock');
+        }
       } else {
         setCashTips('');
         setCreditTips('');
-        setHours('');
+        setHours('5.75');
+        setClockInTime('4:30 PM');
+        setClockOutTime('10:15 PM');
+        setTimeMode('clock');
+        setCalculatedDuration({ hours: 5.75, formatted: '5h 45m', isOvernight: false });
         setTipOut('');
         setNotes('');
         setSelectedJobId(jobs[0]?.id || '');
@@ -78,6 +107,19 @@ export default function ShiftModal({
       }
     }
   }, [visible, shiftToEdit, defaultDate, jobs]);
+
+  const handleUpdateClockTime = (type: 'clockIn' | 'clockOut', timeStr: string) => {
+    const newIn = type === 'clockIn' ? timeStr : clockInTime;
+    const newOut = type === 'clockOut' ? timeStr : clockOutTime;
+    if (type === 'clockIn') setClockInTime(timeStr);
+    if (type === 'clockOut') setClockOutTime(timeStr);
+
+    const res = calcShiftHours(newIn, newOut);
+    if (res) {
+      setCalculatedDuration(res);
+      setHours(res.hours.toString());
+    }
+  };
 
   const activeJobId = selectedJobId || jobs[0]?.id || '';
   const selectedJob = jobs.find((j) => j.id === activeJobId);
@@ -130,11 +172,16 @@ export default function ShiftModal({
       const job = jobs.find((j) => j.id === jobIdToUse) || selectedJob;
       const total = tipCalculator.calcTotalEarnings(job?.hourly_wage ?? 0, hoursWorked, netTips);
 
+      const startTimePayload = timeMode === 'clock' && clockInTime ? to24HourTime(clockInTime) : null;
+      const endTimePayload = timeMode === 'clock' && clockOutTime ? to24HourTime(clockOutTime) : null;
+
       if (isEditing && shiftToEdit) {
         // UPDATE existing shift
         const { data, error } = await shiftService.updateShift(shiftToEdit.id, {
           job_id: jobIdToUse,
           date: shiftDate || shiftToEdit.date,
+          start_time: startTimePayload,
+          end_time: endTimePayload,
           hours_worked: hoursWorked,
           cash_tips: parseFloat(cashTips) || 0,
           credit_tips: parseFloat(creditTips) || 0,
@@ -168,6 +215,8 @@ export default function ShiftModal({
           user_id: session.user.id,
           job_id: jobIdToUse,
           date: shiftDate || format(new Date(), 'yyyy-MM-dd'),
+          start_time: startTimePayload,
+          end_time: endTimePayload,
           hours_worked: hoursWorked,
           cash_tips: parseFloat(cashTips) || 0,
           credit_tips: parseFloat(creditTips) || 0,
@@ -317,33 +366,104 @@ export default function ShiftModal({
               </View>
             </View>
 
-            {/* Hours and Tip-Out */}
-            <View style={modalStyles.row}>
-              <View style={[modalStyles.inputWrap, { flex: 1 }]}>
-                <Text style={modalStyles.inputLabel}>⏱️ Hours Worked</Text>
-                <TextInput
-                  style={modalStyles.input}
-                  placeholder="0.0"
-                  placeholderTextColor={COLORS.textMuted}
-                  keyboardType="decimal-pad"
-                  value={hours}
-                  onChangeText={setHours}
-                />
+            {/* Shift Timing Section (Clock In / Out & Duration) */}
+            <View style={modalStyles.timingSection}>
+              <View style={modalStyles.timingHeader}>
+                <Text style={modalStyles.inputLabel}>⏱️ Shift Hours & Duration</Text>
+                <View style={modalStyles.modeToggle}>
+                  <TouchableOpacity
+                    style={[modalStyles.modeBtn, timeMode === 'clock' && modalStyles.modeBtnActive]}
+                    onPress={() => {
+                      setTimeMode('clock');
+                      const res = calcShiftHours(clockInTime, clockOutTime);
+                      if (res) {
+                        setCalculatedDuration(res);
+                        setHours(res.hours.toString());
+                      }
+                    }}
+                  >
+                    <Text style={[modalStyles.modeText, timeMode === 'clock' && modalStyles.modeTextActive]}>
+                      ⏰ Clock In/Out
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[modalStyles.modeBtn, timeMode === 'manual' && modalStyles.modeBtnActive]}
+                    onPress={() => setTimeMode('manual')}
+                  >
+                    <Text style={[modalStyles.modeText, timeMode === 'manual' && modalStyles.modeTextActive]}>
+                      ⚡ Manual
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={[modalStyles.inputWrap, { flex: 1 }]}>
-                <Text style={modalStyles.inputLabel}>
-                  🤝 Tip-Out ($)
-                  {selectedJob?.tip_out_percent ? ` (${selectedJob.tip_out_percent}%)` : ''}
-                </Text>
-                <TextInput
-                  style={modalStyles.input}
-                  placeholder={calcTipOut > 0 ? calcTipOut.toFixed(2) : '0.00'}
-                  placeholderTextColor={COLORS.textMuted}
-                  keyboardType="decimal-pad"
-                  value={tipOut}
-                  onChangeText={setTipOut}
-                />
-              </View>
+
+              {timeMode === 'clock' ? (
+                <View style={modalStyles.clockCard}>
+                  <View style={modalStyles.clockRow}>
+                    <TouchableOpacity
+                      style={modalStyles.clockPill}
+                      onPress={() => setTimePickerTarget('clockIn')}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={modalStyles.clockPillSub}>🟢 CLOCK IN</Text>
+                      <Text style={modalStyles.clockPillVal}>{clockInTime}</Text>
+                      <Text style={modalStyles.clockPillHint}>Tap to change ✏️</Text>
+                    </TouchableOpacity>
+
+                    <View style={modalStyles.clockArrowWrap}>
+                      <Text style={modalStyles.clockArrow}>➔</Text>
+                    </View>
+
+                    <TouchableOpacity
+                      style={modalStyles.clockPill}
+                      onPress={() => setTimePickerTarget('clockOut')}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={modalStyles.clockPillSub}>🔴 CLOCK OUT</Text>
+                      <Text style={modalStyles.clockPillVal}>{clockOutTime}</Text>
+                      <Text style={modalStyles.clockPillHint}>Tap to change ✏️</Text>
+                    </TouchableOpacity>
+                  </View>
+
+                  {calculatedDuration && (
+                    <View style={modalStyles.durationBadge}>
+                      <Text style={modalStyles.durationText}>
+                        ⏱️ Calculated Shift: <Text style={{ color: COLORS.primary, fontWeight: '900' }}>{calculatedDuration.formatted}</Text> ({calculatedDuration.hours} hrs)
+                      </Text>
+                      {calculatedDuration.isOvernight && (
+                        <Text style={modalStyles.overnightText}>🌙 Crosses Midnight (Ends Next Morning)</Text>
+                      )}
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <View style={modalStyles.inputWrap}>
+                  <TextInput
+                    style={modalStyles.input}
+                    placeholder="e.g. 5.5"
+                    placeholderTextColor={COLORS.textMuted}
+                    keyboardType="decimal-pad"
+                    value={hours}
+                    onChangeText={setHours}
+                  />
+                </View>
+              )}
+            </View>
+
+            {/* Tip-Out Input */}
+            <View style={modalStyles.inputWrap}>
+              <Text style={modalStyles.inputLabel}>
+                🤝 Tip-Out ($)
+                {selectedJob?.tip_out_percent ? ` (${selectedJob.tip_out_percent}%)` : ''}
+              </Text>
+              <TextInput
+                style={modalStyles.input}
+                placeholder={calcTipOut > 0 ? calcTipOut.toFixed(2) : '0.00'}
+                placeholderTextColor={COLORS.textMuted}
+                keyboardType="decimal-pad"
+                value={tipOut}
+                onChangeText={setTipOut}
+              />
             </View>
 
             {/* Notes */}
@@ -427,6 +547,20 @@ export default function ShiftModal({
           onClose={() => setIsFlexOpen(false)}
         />
       )}
+
+      {/* Time Picker Modal for Clock In & Clock Out */}
+      <TimePickerModal
+        visible={timePickerTarget !== null}
+        title={timePickerTarget === 'clockIn' ? '🟢 Select Clock In Time' : '🔴 Select Clock Out Time'}
+        initialTime={timePickerTarget === 'clockIn' ? clockInTime : clockOutTime}
+        isClockOut={timePickerTarget === 'clockOut'}
+        onSelectTime={(formattedTime) => {
+          if (timePickerTarget) {
+            handleUpdateClockTime(timePickerTarget, formattedTime);
+          }
+        }}
+        onClose={() => setTimePickerTarget(null)}
+      />
     </Modal>
   );
 }
@@ -481,6 +615,105 @@ const modalStyles = StyleSheet.create({
     paddingVertical: SPACING.md,
     fontSize: FONT_SIZES.base,
     color: COLORS.textPrimary,
+  },
+  timingSection: {
+    marginBottom: SPACING.base,
+  },
+  timingHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.xs,
+  },
+  modeToggle: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.background,
+    borderRadius: RADIUS.full,
+    padding: 2,
+    gap: 4,
+  },
+  modeBtn: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: RADIUS.full,
+  },
+  modeBtnActive: {
+    backgroundColor: COLORS.primary,
+  },
+  modeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  modeTextActive: {
+    color: '#0D0F14',
+    fontWeight: '800',
+  },
+  clockCard: {
+    backgroundColor: COLORS.surfaceElevated,
+    borderRadius: RADIUS.lg,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    padding: SPACING.md,
+  },
+  clockRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  clockPill: {
+    flex: 1,
+    backgroundColor: COLORS.background,
+    borderWidth: 1.5,
+    borderColor: COLORS.primary + '33',
+    borderRadius: RADIUS.md,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.sm,
+    alignItems: 'center',
+  },
+  clockPillSub: {
+    fontSize: 9,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+    letterSpacing: 0.5,
+    marginBottom: 2,
+  },
+  clockPillVal: {
+    fontSize: FONT_SIZES.lg,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+  },
+  clockPillHint: {
+    fontSize: 9,
+    color: COLORS.primary,
+    fontWeight: '700',
+    marginTop: 2,
+  },
+  clockArrowWrap: {
+    paddingHorizontal: SPACING.xs,
+  },
+  clockArrow: {
+    fontSize: 18,
+    color: COLORS.textMuted,
+    fontWeight: '900',
+  },
+  durationBadge: {
+    marginTop: SPACING.sm,
+    paddingTop: SPACING.sm,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    alignItems: 'center',
+  },
+  durationText: {
+    fontSize: FONT_SIZES.xs,
+    color: COLORS.textSecondary,
+    fontWeight: '700',
+  },
+  overnightText: {
+    fontSize: 10,
+    color: COLORS.accent,
+    fontWeight: '700',
+    marginTop: 2,
   },
   jobRow: { flexDirection: 'row', flexWrap: 'wrap', gap: SPACING.xs },
   jobChip: {
