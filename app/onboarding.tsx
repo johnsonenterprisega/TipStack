@@ -807,7 +807,6 @@ const styles = StyleSheet.create({
   logoImg: {
     width: 96,
     height: 96,
-    borderRadius: RADIUS.xl,
     marginBottom: SPACING.base,
   },
   brandTitle: {

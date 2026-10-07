@@ -193,14 +193,12 @@ const styles = StyleSheet.create({
   logoWrap: {
     width: Math.min(width * 0.65, 260),
     height: Math.min(width * 0.65, 260),
-    borderRadius: RADIUS.xl,
-    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#00C9A7',
     shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.4,
-    shadowRadius: 24,
+    shadowOpacity: 0.5,
+    shadowRadius: 28,
     elevation: 12,
   },
   logoImage: {
