@@ -21,7 +21,10 @@ import {
   format,
   subDays,
   parseISO,
+  startOfMonth,
+  endOfMonth,
 } from 'date-fns';
+import { getCurrentPayPeriod, getPayDayStatus } from '../../src/utils/payPeriod';
 
 const { width } = Dimensions.get('window');
 
@@ -38,9 +41,96 @@ export default function AnalyticsScreen() {
   const [isPaywallVisible, setIsPaywallVisible] = useState(false);
   const [isExportModalVisible, setIsExportModalVisible] = useState(false);
   const [activeMatrixTab, setActiveMatrixTab] = useState<'hourly' | 'tips'>('hourly');
+  const [timeframe, setTimeframe] = useState<'pay_period' | 'month' | 'all_time'>('pay_period');
+
+  // Dates & Periods
+  const now = useMemo(() => new Date(), []);
+  const currentPayPeriod = useMemo(
+    () => getCurrentPayPeriod(now, profile?.pay_period_start_day ?? 3),
+    [now, profile?.pay_period_start_day]
+  );
+  const payDayStatus = useMemo(
+    () => getPayDayStatus(now, profile?.pay_day ?? 5),
+    [now, profile?.pay_day]
+  );
+  const monthStart = useMemo(() => format(startOfMonth(now), 'yyyy-MM-dd'), [now]);
+  const monthEnd = useMemo(() => format(endOfMonth(now), 'yyyy-MM-dd'), [now]);
+
+  // Filtered shifts based on selected timeframe
+  const selectedShifts = useMemo(() => {
+    if (timeframe === 'pay_period') {
+      return shifts.filter(
+        (s) => s.date >= currentPayPeriod.startDateStr && s.date <= currentPayPeriod.endDateStr
+      );
+    }
+    if (timeframe === 'month') {
+      return shifts.filter((s) => s.date >= monthStart && s.date <= monthEnd);
+    }
+    return shifts;
+  }, [shifts, timeframe, currentPayPeriod, monthStart, monthEnd]);
+
+  // ─── PRE-TAX ESTIMATED PAYDAY CHECK CALCULATION ───────────────────────────
+  const paycheckEstimates = useMemo(() => {
+    let baseWages = 0;
+    let netTips = 0;
+    let cashTips = 0;
+    let creditTips = 0;
+    let tipOut = 0;
+    let totalHours = 0;
+    const jobBreakdownMap: Record<
+      string,
+      { name: string; color: string; hours: number; wages: number; tips: number }
+    > = {};
+
+    for (const s of selectedShifts) {
+      const job = jobs.find((j) => j.id === s.job_id);
+      const wage = job?.hourly_wage || 0;
+      const shiftWage = s.hours_worked * wage;
+
+      baseWages += shiftWage;
+      netTips += s.net_tips;
+      cashTips += s.cash_tips;
+      creditTips += s.credit_tips;
+      tipOut += s.tip_out_amount;
+      totalHours += s.hours_worked;
+
+      const jId = s.job_id || 'other';
+      if (!jobBreakdownMap[jId]) {
+        jobBreakdownMap[jId] = {
+          name: job?.name || 'Workplace',
+          color: job?.color || COLORS.primary,
+          hours: 0,
+          wages: 0,
+          tips: 0,
+        };
+      }
+      jobBreakdownMap[jId].hours += s.hours_worked;
+      jobBreakdownMap[jId].wages += shiftWage;
+      jobBreakdownMap[jId].tips += s.net_tips;
+    }
+
+    const grossPay = baseWages + netTips;
+    const effectiveHourly = totalHours > 0 ? grossPay / totalHours : 0;
+    const avgBaseWage = totalHours > 0 ? baseWages / totalHours : 0;
+
+    return {
+      baseWages,
+      netTips,
+      cashTips,
+      creditTips,
+      tipOut,
+      totalHours,
+      grossPay,
+      effectiveHourly,
+      avgBaseWage,
+      jobBreakdown: Object.values(jobBreakdownMap),
+      shiftCount: selectedShifts.length,
+    };
+  }, [selectedShifts, jobs]);
 
   // ─── 1. CORE & SUMMARY STATS ────────────────────────────────────────────────
   const stats = useMemo(() => {
+    const targetShifts = selectedShifts;
     if (shifts.length === 0) {
       return {
         totalTips: 0,
@@ -58,18 +148,16 @@ export default function AnalyticsScreen() {
       };
     }
 
-    const totalTips = shifts.reduce((s, sh) => s + sh.net_tips, 0);
-    const totalGross = shifts.reduce((s, sh) => s + (sh.cash_tips + sh.credit_tips), 0);
-    const totalCash = shifts.reduce((s, sh) => s + sh.cash_tips, 0);
-    const totalCredit = shifts.reduce((s, sh) => s + sh.credit_tips, 0);
-    const totalTipOut = shifts.reduce((s, sh) => s + sh.tip_out_amount, 0);
-    const totalHours = shifts.reduce((s, sh) => s + sh.hours_worked, 0);
+    const totalTips = targetShifts.reduce((s, sh) => s + sh.net_tips, 0);
+    const totalGross = targetShifts.reduce((s, sh) => s + (sh.cash_tips + sh.credit_tips), 0);
+    const totalCash = targetShifts.reduce((s, sh) => s + sh.cash_tips, 0);
+    const totalCredit = targetShifts.reduce((s, sh) => s + sh.credit_tips, 0);
+    const totalTipOut = targetShifts.reduce((s, sh) => s + sh.tip_out_amount, 0);
+    const totalHours = targetShifts.reduce((s, sh) => s + sh.hours_worked, 0);
 
-    const avgPerShift = totalTips / shifts.length;
-
-    const shiftsWithHours = shifts.filter((s) => s.hours_worked > 0);
+    const avgPerShift = targetShifts.length > 0 ? totalTips / targetShifts.length : 0;
     const avgPerHour = totalHours > 0 ? totalTips / totalHours : 0;
-    const bestDay = Math.max(...shifts.map((s) => s.net_tips));
+    const bestDay = targetShifts.length > 0 ? Math.max(...targetShifts.map((s) => s.net_tips)) : 0;
 
     // ─── 2. #1 GOLDEN SHIFT MATRIX (Day of Week Analysis) ─────────────────────
     const dayTotals: Record<number, { sumTips: number; sumHours: number; count: number }> = {};
@@ -197,7 +285,7 @@ export default function AnalyticsScreen() {
       last7Days,
       jobStats,
     };
-  }, [shifts, jobs]);
+  }, [shifts, jobs, selectedShifts]);
 
   // Golden Shift calculations
   const bestHourlyDay = useMemo(() => {
@@ -240,6 +328,194 @@ export default function AnalyticsScreen() {
               <Text style={styles.proBadgeTextUpgrade}>⭐ UPGRADE PRO</Text>
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* ─── TIMEFRAME SELECTOR ─── */}
+        <View style={styles.timeframeContainer}>
+          <TouchableOpacity
+            style={[styles.timeframePill, timeframe === 'pay_period' && styles.timeframePillActive]}
+            onPress={() => setTimeframe('pay_period')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.timeframePillTitle, timeframe === 'pay_period' && styles.timeframePillTitleActive]}>
+              ⚡ Pay Period
+            </Text>
+            <Text style={[styles.timeframePillSub, timeframe === 'pay_period' && styles.timeframePillSubActive]}>
+              {currentPayPeriod.label}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.timeframePill, timeframe === 'month' && styles.timeframePillActive]}
+            onPress={() => setTimeframe('month')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.timeframePillTitle, timeframe === 'month' && styles.timeframePillTitleActive]}>
+              📅 This Month
+            </Text>
+            <Text style={[styles.timeframePillSub, timeframe === 'month' && styles.timeframePillSubActive]}>
+              {format(now, 'MMMM')}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.timeframePill, timeframe === 'all_time' && styles.timeframePillActive]}
+            onPress={() => setTimeframe('all_time')}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.timeframePillTitle, timeframe === 'all_time' && styles.timeframePillTitleActive]}>
+              ♾️ All Time
+            </Text>
+            <Text style={[styles.timeframePillSub, timeframe === 'all_time' && styles.timeframePillSubActive]}>
+              All History
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* ─── ESTIMATED PAYDAY CHECK HERO CARD (PRE-TAX) ─── */}
+        <View style={styles.paycheckHeroCard}>
+          <LinearGradient
+            colors={['rgba(0, 201, 167, 0.16)', 'rgba(0, 201, 167, 0.04)']}
+            style={styles.paycheckGradient}
+          >
+            {/* Header with Title and Payday Countdown */}
+            <View style={styles.paycheckHeader}>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={{ fontSize: 18 }}>💰</Text>
+                  <Text style={styles.paycheckTitle}>
+                    {timeframe === 'pay_period'
+                      ? 'Estimated Payday Check'
+                      : timeframe === 'month'
+                      ? 'Estimated Monthly Gross'
+                      : 'Estimated Lifetime Gross'}
+                  </Text>
+                </View>
+                <Text style={styles.paycheckSubtitle}>
+                  {timeframe === 'pay_period'
+                    ? `Pre-tax earnings for ${currentPayPeriod.fullLabel}`
+                    : timeframe === 'month'
+                    ? `Pre-tax earnings for ${format(now, 'MMMM yyyy')}`
+                    : 'All recorded shifts before taxes'}
+                </Text>
+              </View>
+
+              {timeframe === 'pay_period' && (
+                <View style={[styles.paydayBadge, payDayStatus.isToday && styles.paydayBadgeToday]}>
+                  <Text style={[styles.paydayBadgeText, payDayStatus.isToday && styles.paydayBadgeTextToday]}>
+                    {payDayStatus.message}
+                  </Text>
+                </View>
+              )}
+            </View>
+
+            {/* Hero Estimated Gross Amount */}
+            <View style={styles.paycheckHeroCenter}>
+              <Text style={styles.paycheckHeroAmount}>
+                {tipCalculator.formatCurrency(paycheckEstimates.grossPay)}
+              </Text>
+              <Text style={styles.paycheckHeroLabel}>
+                Estimated Gross Pay (Hourly Wages + Tips Before Taxes)
+              </Text>
+            </View>
+
+            {/* 4-Metric Grid */}
+            <View style={styles.paycheckStatsGrid}>
+              <View style={styles.paycheckStatBox}>
+                <Text style={styles.paycheckStatLabel}>💵 Hourly Base Pay</Text>
+                <Text style={styles.paycheckStatVal}>
+                  {tipCalculator.formatCurrency(paycheckEstimates.baseWages)}
+                </Text>
+                <Text style={styles.paycheckStatSub}>
+                  {paycheckEstimates.totalHours.toFixed(1)} hrs @ ${paycheckEstimates.avgBaseWage.toFixed(2)}/hr base
+                </Text>
+              </View>
+
+              <View style={styles.paycheckStatBox}>
+                <Text style={styles.paycheckStatLabel}>🪙 Net Take-Home Tips</Text>
+                <Text style={[styles.paycheckStatVal, { color: '#00C9A7' }]}>
+                  {tipCalculator.formatCurrency(paycheckEstimates.netTips)}
+                </Text>
+                <Text style={styles.paycheckStatSub}>
+                  ${paycheckEstimates.totalHours > 0 ? (paycheckEstimates.netTips / paycheckEstimates.totalHours).toFixed(2) : '0.00'}/hr in tips
+                </Text>
+              </View>
+
+              <View style={styles.paycheckStatBox}>
+                <Text style={styles.paycheckStatLabel}>⏱️ Shift Hours</Text>
+                <Text style={styles.paycheckStatVal}>
+                  {paycheckEstimates.totalHours.toFixed(1)} hrs
+                </Text>
+                <Text style={styles.paycheckStatSub}>
+                  Across {paycheckEstimates.shiftCount} shifts
+                </Text>
+              </View>
+
+              <View style={styles.paycheckStatBox}>
+                <Text style={styles.paycheckStatLabel}>📈 Combined True $/Hr</Text>
+                <Text style={[styles.paycheckStatVal, { color: COLORS.accent }]}>
+                  ${paycheckEstimates.effectiveHourly.toFixed(2)}/hr
+                </Text>
+                <Text style={styles.paycheckStatSub}>
+                  Wages + Tips combined
+                </Text>
+              </View>
+            </View>
+
+            {/* Tip Breakdown Anatomy */}
+            <View style={styles.tipAnatomyBox}>
+              <Text style={styles.tipAnatomyTitle}>Tip Breakdown Anatomy</Text>
+              <View style={styles.tipAnatomyRow}>
+                <View style={styles.tipAnatomyItem}>
+                  <Text style={styles.tipAnatomyLabel}>💵 Cash in Pocket</Text>
+                  <Text style={styles.tipAnatomyAmount}>
+                    {tipCalculator.formatCurrency(paycheckEstimates.cashTips)}
+                  </Text>
+                </View>
+                <View style={styles.tipAnatomyDivider} />
+                <View style={styles.tipAnatomyItem}>
+                  <Text style={styles.tipAnatomyLabel}>💳 Credit on Paycheck</Text>
+                  <Text style={styles.tipAnatomyAmount}>
+                    {tipCalculator.formatCurrency(paycheckEstimates.creditTips)}
+                  </Text>
+                </View>
+                <View style={styles.tipAnatomyDivider} />
+                <View style={styles.tipAnatomyItem}>
+                  <Text style={styles.tipAnatomyLabel}>🤝 Tip-Outs Paid</Text>
+                  <Text style={[styles.tipAnatomyAmount, { color: '#FF6B6B' }]}>
+                    -{tipCalculator.formatCurrency(paycheckEstimates.tipOut)}
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Multi-Workplace Split if more than 1 job */}
+            {paycheckEstimates.jobBreakdown.length > 1 && (
+              <View style={styles.jobBreakdownRow}>
+                <Text style={styles.jobBreakdownTitle}>Workplace Earnings Split:</Text>
+                <View style={styles.jobPillContainer}>
+                  {paycheckEstimates.jobBreakdown.map((jb, idx) => (
+                    <View key={idx} style={[styles.jobPill, { borderColor: jb.color + '55' }]}>
+                      <View style={[styles.jobPillDot, { backgroundColor: jb.color }]} />
+                      <Text style={styles.jobPillName}>{jb.name}:</Text>
+                      <Text style={styles.jobPillAmount}>
+                        {tipCalculator.formatCurrency(jb.wages + jb.tips)}
+                      </Text>
+                      <Text style={styles.jobPillHours}>({jb.hours.toFixed(1)}h)</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Informational Pre-Tax Disclaimer Note */}
+            <View style={styles.preTaxNoteBox}>
+              <Text style={styles.preTaxNoteText}>
+                ℹ️ <Text style={{ fontWeight: '700', color: COLORS.textPrimary }}>Pre-Tax Gross Estimate:</Text>{' '}
+                Calculated as base hourly pay + tips before individual tax withholdings and deductions. Taxes vary per individual based on filing status, W-4 elections, and state rates.
+              </Text>
+            </View>
+          </LinearGradient>
         </View>
 
         {/* ─── SUMMARY CARDS ─── */}
@@ -722,6 +998,249 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: COLORS.primary,
   },
+  // Timeframe Filter Pills
+  timeframeContainer: {
+    flexDirection: 'row',
+    gap: SPACING.xs,
+    marginBottom: SPACING.md,
+  },
+  timeframePill: {
+    flex: 1,
+    backgroundColor: COLORS.surface,
+    borderRadius: RADIUS.lg,
+    paddingVertical: SPACING.sm,
+    paddingHorizontal: SPACING.xs,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  timeframePillActive: {
+    backgroundColor: 'rgba(0, 201, 167, 0.12)',
+    borderColor: '#00C9A7',
+  },
+  timeframePillTitle: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  },
+  timeframePillTitleActive: {
+    color: '#00C9A7',
+    fontWeight: '900',
+  },
+  timeframePillSub: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  timeframePillSubActive: {
+    color: COLORS.textPrimary,
+    fontWeight: '600',
+  },
+
+  // Paycheck Hero Card
+  paycheckHeroCard: {
+    borderRadius: RADIUS.xl,
+    overflow: 'hidden',
+    marginBottom: SPACING.base,
+    borderWidth: 1.5,
+    borderColor: 'rgba(0, 201, 167, 0.4)',
+    backgroundColor: COLORS.surface,
+    ...SHADOWS.glow,
+  },
+  paycheckGradient: {
+    padding: SPACING.base,
+  },
+  paycheckHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: SPACING.sm,
+    marginBottom: SPACING.md,
+  },
+  paycheckTitle: {
+    fontSize: FONT_SIZES.md,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+    letterSpacing: 0.2,
+  },
+  paycheckSubtitle: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    marginTop: 3,
+  },
+  paydayBadge: {
+    backgroundColor: 'rgba(0, 201, 167, 0.15)',
+    borderWidth: 1,
+    borderColor: '#00C9A7',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: RADIUS.full,
+    alignSelf: 'flex-start',
+  },
+  paydayBadgeToday: {
+    backgroundColor: '#00E676',
+    borderColor: '#00E676',
+  },
+  paydayBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#00C9A7',
+  },
+  paydayBadgeTextToday: {
+    color: '#0D0F14',
+  },
+  paycheckHeroCenter: {
+    alignItems: 'center',
+    marginVertical: SPACING.sm,
+    paddingVertical: SPACING.sm,
+  },
+  paycheckHeroAmount: {
+    fontSize: 34,
+    fontWeight: '900',
+    color: '#00E676',
+    letterSpacing: -0.5,
+  },
+  paycheckHeroLabel: {
+    fontSize: 11,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  paycheckStatsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: SPACING.xs,
+    marginTop: SPACING.xs,
+    marginBottom: SPACING.md,
+  },
+  paycheckStatBox: {
+    width: '48.5%',
+    backgroundColor: COLORS.surfaceElevated,
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  paycheckStatLabel: {
+    fontSize: 10,
+    color: COLORS.textMuted,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  paycheckStatVal: {
+    fontSize: FONT_SIZES.sm,
+    fontWeight: '900',
+    color: COLORS.textPrimary,
+    marginTop: 2,
+  },
+  paycheckStatSub: {
+    fontSize: 9,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+  },
+  tipAnatomyBox: {
+    backgroundColor: COLORS.surfaceElevated,
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    marginBottom: SPACING.sm,
+  },
+  tipAnatomyTitle: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: SPACING.xs,
+  },
+  tipAnatomyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  tipAnatomyItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  tipAnatomyDivider: {
+    width: 1,
+    height: 24,
+    backgroundColor: COLORS.border,
+  },
+  tipAnatomyLabel: {
+    fontSize: 9,
+    color: COLORS.textMuted,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  tipAnatomyAmount: {
+    fontSize: FONT_SIZES.xs,
+    fontWeight: '800',
+    color: COLORS.textPrimary,
+  },
+  jobBreakdownRow: {
+    marginBottom: SPACING.sm,
+    paddingTop: SPACING.xs,
+  },
+  jobBreakdownTitle: {
+    fontSize: 10,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    marginBottom: 6,
+    textTransform: 'uppercase',
+  },
+  jobPillContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+  },
+  jobPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.surfaceElevated,
+    borderWidth: 1,
+    borderRadius: RADIUS.full,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    gap: 4,
+  },
+  jobPillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  jobPillName: {
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    fontWeight: '700',
+  },
+  jobPillAmount: {
+    fontSize: 10,
+    color: '#00E676',
+    fontWeight: '800',
+  },
+  jobPillHours: {
+    fontSize: 9,
+    color: COLORS.textMuted,
+  },
+  preTaxNoteBox: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: RADIUS.md,
+    padding: SPACING.sm,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.08)',
+  },
+  preTaxNoteText: {
+    fontSize: 10,
+    color: COLORS.textSecondary,
+    lineHeight: 15,
+  },
+
   summaryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

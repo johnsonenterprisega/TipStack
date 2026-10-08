@@ -210,13 +210,13 @@ export default function CalendarScreen() {
         {/* Month Overview Stats */}
         <View style={styles.monthSummaryRow}>
           <View style={styles.monthSummaryCard}>
-            <Text style={styles.monthSummaryLabel}>Total Tips</Text>
+            <Text style={styles.monthSummaryLabel}>{format(currentMonth, 'MMM')} Total Tips</Text>
             <Text style={styles.monthSummaryValue}>
               {tipCalculator.formatCurrency(currentMonthTotalTips)}
             </Text>
           </View>
           <View style={styles.monthSummaryCard}>
-            <Text style={styles.monthSummaryLabel}>Shifts Worked</Text>
+            <Text style={styles.monthSummaryLabel}>{format(currentMonth, 'MMM')} Shifts</Text>
             <Text style={styles.monthSummaryValue}>{currentMonthShifts.length} shifts</Text>
           </View>
           <View style={styles.monthSummaryCard}>
