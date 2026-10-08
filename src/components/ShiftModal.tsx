@@ -186,7 +186,6 @@ export default function ShiftModal({
           cash_tips: parseFloat(cashTips) || 0,
           credit_tips: parseFloat(creditTips) || 0,
           tip_out_amount: calcTipOut,
-          net_tips: netTips,
           total_earnings: total,
           notes: notes.trim() || null,
         });
@@ -221,7 +220,6 @@ export default function ShiftModal({
           cash_tips: parseFloat(cashTips) || 0,
           credit_tips: parseFloat(creditTips) || 0,
           tip_out_amount: calcTipOut,
-          net_tips: netTips,
           total_earnings: total,
           notes: notes.trim() || null,
         });

@@ -222,8 +222,10 @@ export const shiftService = {
   },
 
   async updateShift(shiftId: string, updates: Partial<Shift>) {
+    // Strip generated always columns like net_tips so Postgres can recalculate them
+    const { net_tips, ...updatePayload } = updates as any;
     const { data, error } = await (supabase.from('shifts') as any)
-      .update({ ...updates, updated_at: new Date().toISOString() })
+      .update({ ...updatePayload, updated_at: new Date().toISOString() })
       .eq('id', shiftId)
       .select()
       .single();
