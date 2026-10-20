@@ -20,6 +20,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.johnsonenterprise.stackup",
+      "buildNumber": "9",
       "infoPlist": {
         "NSCameraUsageDescription": "Used for profile photo upload.",
         "NSPhotoLibraryUsageDescription": "Used for profile photo upload.",

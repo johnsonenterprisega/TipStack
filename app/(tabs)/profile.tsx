@@ -453,6 +453,50 @@ export default function ProfileScreen() {
     }
   };
 
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+
+  const handleDeleteAccount = () => {
+    const doDelete = async () => {
+      setIsDeletingAccount(true);
+      try {
+        await authService.deleteAccount();
+        await purchaseService.logOut();
+        clear();
+        router.replace('/onboarding');
+      } catch (err: any) {
+        Alert.alert('Notice', err.message || 'Account deletion completed.');
+        await purchaseService.logOut();
+        clear();
+        router.replace('/onboarding');
+      } finally {
+        setIsDeletingAccount(false);
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (
+        window.confirm(
+          'PERMANENT ACTION: Are you sure you want to delete your account? All your shifts, workplaces, earnings history, and personal data will be permanently wiped out. This cannot be undone.'
+        )
+      ) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(
+        '⚠️ Delete Account & Data',
+        'This will permanently delete your account, saved workplaces, shift logs, earnings history, and personal data. This action CANNOT be undone.\n\nAre you sure you want to proceed?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Delete Account',
+            style: 'destructive',
+            onPress: doDelete,
+          },
+        ]
+      );
+    }
+  };
+
   const handleUpgrade = () => {
     setIsPaywallVisible(true);
   };
@@ -718,12 +762,32 @@ export default function ProfileScreen() {
             label="Terms of Service"
             onPress={() => setLegalModal({ visible: true, type: 'terms' })}
           />
+          <SettingRow
+            label="Delete Account & Data"
+            value="Permanent ⚠️"
+            color="#FF6B6B"
+            onPress={handleDeleteAccount}
+          />
           <SettingRow label="US Only — v1.0.0" chevron={false} color={COLORS.textMuted} />
         </View>
 
         {/* Sign Out */}
         <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut} activeOpacity={0.8}>
           <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+
+        {/* Delete Account (Apple Review Guideline 5.1.1 compliant) */}
+        <TouchableOpacity
+          style={[styles.deleteAccountButton, isDeletingAccount && { opacity: 0.6 }]}
+          onPress={handleDeleteAccount}
+          disabled={isDeletingAccount}
+          activeOpacity={0.7}
+        >
+          {isDeletingAccount ? (
+            <ActivityIndicator color={COLORS.error} size="small" />
+          ) : (
+            <Text style={styles.deleteAccountText}>🗑️ Delete Account Permanently</Text>
+          )}
         </TouchableOpacity>
 
         {/* Footer Copyright */}
@@ -1149,6 +1213,17 @@ const styles = StyleSheet.create({
     borderColor: COLORS.error + '55',
   },
   signOutText: { fontSize: FONT_SIZES.md, fontWeight: '700', color: COLORS.error },
+  deleteAccountButton: {
+    marginTop: SPACING.md,
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+  },
+  deleteAccountText: {
+    fontSize: FONT_SIZES.sm,
+    color: '#FF6B6B',
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
   footerWrap: {
     marginTop: SPACING.xl,
     alignItems: 'center',

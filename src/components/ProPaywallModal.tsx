@@ -318,8 +318,8 @@ export default function ProPaywallModal({
               <Text style={styles.restoreBtnText}>Restore Previous Purchases</Text>
             </TouchableOpacity>
 
-            {/* Dev toggle to revert to Free tier for testing */}
-            {isAlreadyPro && (
+            {/* Dev toggle to revert to Free tier for testing (development only) */}
+            {__DEV__ && isAlreadyPro && (
               <TouchableOpacity onPress={handleDowngradeForTesting} style={{ marginTop: 8, marginBottom: 8, alignItems: 'center' }}>
                 <Text style={{ color: COLORS.textMuted, fontSize: 12 }}>[Dev: Revert account to Free tier]</Text>
               </TouchableOpacity>

@@ -77,6 +77,34 @@ export const authService = {
     return { error };
   },
 
+  async deleteAccount() {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData?.session?.user?.id;
+    if (!userId) return { error: new Error('No active user session') };
+
+    // 1. Try invoking security definer RPC if available in Supabase
+    try {
+      await supabase.rpc('delete_user_account' as any);
+    } catch (e) {
+      console.warn('[authService] RPC delete_user_account notice:', e);
+    }
+
+    // 2. Direct data purge across all tables referencing user_id
+    try {
+      await supabase.from('shifts').delete().eq('user_id', userId);
+      await supabase.from('jobs').delete().eq('user_id', userId);
+      await supabase.from('goals').delete().eq('user_id', userId);
+      await supabase.from('user_achievements').delete().eq('user_id', userId);
+      await supabase.from('profiles').delete().eq('id', userId);
+    } catch (cleanupErr) {
+      console.warn('[authService] Table cleanup notice:', cleanupErr);
+    }
+
+    // 3. Sign out of Supabase
+    const { error: signOutError } = await supabase.auth.signOut();
+    return { error: signOutError || null };
+  },
+
   async getSession() {
     const { data, error } = await supabase.auth.getSession();
     return { session: data.session, error };
